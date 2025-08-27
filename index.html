@@ -14,9 +14,9 @@
     #output { 
       margin-top: 20px; 
       white-space: pre; /* Mantém quebras de linha no texto mostrado */
-      background: #f5f5f5; 
+      background: #110259; 
       padding: 10px; 
-      border: 1px solid #ddd; 
+      border: 1px solid #ff4eff; 
     }
     form { margin-top: 15px; }
     input { margin: 5px; padding: 5px; } /* Campos de texto mais organizados */
@@ -32,16 +32,20 @@
   <div id="buttons">
     <!-- Cada botão tem um atributo "data-action" para indicar a ação que será executada -->
     <button data-action="init">0 - Iniciar Livraria</button> <!-- NOVO -->
-    <button data-action="list">1 - Listar livros</button>
-    <button data-action="add">2 - Adicionar novo livro</button>
-    <button data-action="update">3 - Atualizar livro</button>
-    <button data-action="delete">4 - Remover livro</button>
+    <button data-action="list">1 - Listar quadrinhos</button>
+    <button data-action="add">2 - Adicionar novo quadrinho</button>
+    <button data-action="update">3 - Atualizar quadrinho</button>
+    <button data-action="delete">4 - Remover quadrinho</button>
     <button data-action="clear">5 - Limpar livraria</button>
-    <button data-action="listByAuthor">6 - Listar livros por autor</button>
-    <button data-action="countByAuthor">7 - Contar livros por autor</button>
-    <button data-action="exit">8 - Sair</button>
-  </div>
+    <button data-action="listByAuthor">6 - Listar quadrinho por autor</button>
+    <button data-action="countByAuthor">7 - Contar quadrinho por autor</button>
+    <button data-action="listByCategory">8 - Listar quadrinho por categoria</button>
+    <button data-action="listByYear">9 - Listar quadrinho por ano de publicação</button>
+    </div>
 
+  <div id="last-button">  
+    <button data-action="exit"> Autodestruição</button>
+  </div>
 
   <!-- Aqui será exibido dinamicamente o formulário de cada ação (por exemplo, adicionar livro) -->
   <div id="forms"></div>

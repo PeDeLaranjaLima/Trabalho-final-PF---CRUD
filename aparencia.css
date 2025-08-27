@@ -6,11 +6,15 @@ body {
     }
 
 body {
-  background-image: url("estrela.png"), url("estrela.png"); /* Seleciona a imagem e o caminho do arquivo */
-  background-repeat: no-repeat, no-repeat; /* Repete quantas vezes o parâmetro é m-adicionado */
-  background-position: top left, bottom right; /* controla a posição */
-  background-size: 30px 30px, 30px 30px;       /* define o tamanho de cada figura */
+    background-image: url("fundo.png"); /* caminho da sua imagem */
+    background-repeat: no-repeat;       /* evita repetição */
+    background-position: center;        /* centraliza a imagem */
+    background-size: cover;             /* faz a imagem cobrir toda a tela */
+    color: rgb(208, 50, 244);                       /* cor do texto para contraste */
+    font-size: 18px;
+    font-family: 'Times New Roman', Times, serif;
 }
+
 
 
 h1 {
@@ -19,11 +23,47 @@ h1 {
     }
 
 #buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 220px; /* largura definida para a coluna de botões */
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* duas colunas iguais */
+  gap: 10px;
+  width: 450px;
+  margin: 0 auto; /* centraliza o bloco */
 }
+
 #buttons button {
-  width: 100%;  /* ocupa toda a largura do contêiner */
+  background-color: #0cecad;
+  color: black;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+#buttons button:hover {
+  background-color: #6508a7;
+  color: rgb(251, 255, 32);
+}
+
+
+#last-button {
+  margin-top: 20px;
+  text-align: center; /* centraliza o botão */
+}
+
+#last-button button {
+  background-color: #ff0000;
+  color: rgb(226, 237, 6);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 200px; /* largura fixa para não esticar */
+}
+
+#last-button button:hover {
+  background-color: #11ee2a;
+  color: rgb(255, 98, 205);
 }
