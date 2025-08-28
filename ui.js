@@ -28,6 +28,8 @@ function showAddForm() {
       <input type="text" id="addTitle" placeholder="Título" required />
       <input type="text" id="addAuthor" placeholder="Autor" required />
       <input type="number" id="addYear" placeholder="Ano" required />
+      <input type="text" id="addPublisher" placeholder="Editora" required />
+      <input type="text" id="addCategory" placeholder="Categoria" required />
       <button type="submit">Adicionar</button>
     </form>
   `;
@@ -38,7 +40,9 @@ function showAddForm() {
       id: Number(document.getElementById('addId').value),
       title: document.getElementById('addTitle').value,
       author: document.getElementById('addAuthor').value,
-      year: Number(document.getElementById('addYear').value)
+      year: Number(document.getElementById('addYear').value),
+      publisher: document.getElementById('addPublisher').value,
+      category: document.getElementById('addCategory').value
     };
     HQs = Livraria.addHQs(HQs, newHQs); // Chama a função da lib
     Livraria.saveHQs(HQs); // Salva no localStorage
@@ -56,6 +60,8 @@ function showUpdateForm() {
       <input type="text" id="updateTitle" placeholder="Novo título" />
       <input type="text" id="updateAuthor" placeholder="Novo autor" />
       <input type="number" id="updateYear" placeholder="Novo ano" />
+      <input type="text" id="updatePublisher" placeholder="Nova editora" />
+      <input type="text" id="updateCategory" placeholder="Nova categoria" />
       <button type="submit">Atualizar</button>
     </form>
   `;
@@ -66,9 +72,13 @@ function showUpdateForm() {
     const title = document.getElementById('updateTitle').value;
     const author = document.getElementById('updateAuthor').value;
     const year = document.getElementById('updateYear').value;
+    const publisher = document.getElementById('updatePublisher').value;
+    const category = document.getElementById('updateCategory').value;
     if(title) updates.title = title;
     if(author) updates.author = author;
     if(year) updates.year = Number(year);
+    if(publisher) updates.publisher = publisher;
+    if(category) updates.category = category;
     HQs = Livraria.updateHQs(HQs, id, updates); // Atualiza dados
     Livraria.saveHQs(HQs);
     forms.innerHTML = '';
@@ -149,6 +159,50 @@ function showAuthorChart() {
   });
 }
 
+// Listar quadrinhos por categoria
+function mostrarFormularioCategoria() {
+  const formsDiv = document.getElementById('forms');
+  const HQs = Livraria.loadHQs();
+  // Extrai categorias únicas
+  const categorias = [...new Set(HQs.map(hq => hq.category))].filter(Boolean);
+  // Monta as opções para o datalist
+  const options = categorias.map(cat => `<option value="${cat}"></option>`).join('');
+  formsDiv.innerHTML = `
+    <form id="formCategoria">
+      <label for="categoriaInput">Categoria:</label>
+      <input type="text" id="categoriaInput" name="categoria" list="listaCategorias" required />
+      <datalist id="listaCategorias">
+        ${options}
+      </datalist>
+      <button type="submit">Listar</button>
+    </form>
+    <div style="font-size: 0.9em; color: #888; margin-top: 4px;">Categorias disponíveis: ${categorias.join(', ')}</div>
+  `;
+  document.getElementById('output').textContent = '';
+  document.getElementById('formCategoria').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const categoria = document.getElementById('categoriaInput').value.trim();
+    if (!categoria) {
+      document.getElementById('output').textContent = 'Categoria não informada.';
+      return;
+    }
+    const filtrados = Livraria.listHQsByCategory(HQs, categoria);
+    if (filtrados.length === 0) {
+      document.getElementById('output').textContent = 'Nenhum quadrinho encontrado para esta categoria.';
+      return;
+    }
+    const lista = Livraria.formatHQs(filtrados, Livraria.fullFormat);
+    document.getElementById('output').textContent = lista;
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.querySelector('[data-action="listByCategory"]');
+  if (btn) {
+    btn.addEventListener('click', mostrarFormularioCategoria);
+  }
+});
+
 // ===== Actions =====
 // Dicionário que associa cada ação a uma função
 const actions = {
@@ -164,6 +218,24 @@ const actions = {
   clear: () => { forms.innerHTML = ''; Livraria.clearHQs(); HQs=[]; output.textContent='Livraria esvaziada.'; },
   listByAuthor: () => showListByAuthorForm(),
   countByAuthor: () => showAuthorChart(),
+  listByYear: () => {
+    forms.innerHTML = '';
+    const HQs = Livraria.loadHQs();
+    // Agrupa por ano
+    const anos = {};
+    HQs.forEach(hq => {
+      if (!anos[hq.year]) anos[hq.year] = [];
+      anos[hq.year].push(hq);
+    });
+    // Monta a string de saída
+    let resultado = '';
+    const anosOrdenados = Object.keys(anos).sort((a, b) => a - b);
+    anosOrdenados.forEach(ano => {
+      resultado += `Ano ${ano}:\n`;
+      resultado += Livraria.formatHQs(anos[ano], Livraria.fullFormat) + '\n\n';
+    });
+    output.textContent = resultado.trim();
+  },
   exit: () => { forms.innerHTML = ''; output.textContent='Bye, bye! :)'; }
 };
 
