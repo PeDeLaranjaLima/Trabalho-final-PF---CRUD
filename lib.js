@@ -19,7 +19,7 @@ const saveHQs = HQs =>
 // Remove todos os quadrinhos do localStorage
 const clearHQs = () => {
   localStorage.removeItem(STORAGE_KEY)
-  console.log("Livraria limpa.")
+  console.log("HQs removidas.")
 }
 
 // Restaura uma lista inicial de quadrinhos (pré-cadastrados)
@@ -39,7 +39,7 @@ const HQs = [
 ];
 
   saveHQs(HQs) // salva os quadrinhos no localStorage
-  console.log("quadrinhos iniciais salvos.")
+  console.log("Quadrinhos iniciais salvos.")
   return HQs              // retorna os quadrinhos
 }
 
@@ -48,15 +48,15 @@ const HQs = [
 // ========================
 
 // Adiciona um novo quadrinho (retorna um novo array)
-const addBook = (HQs, newBook) => [...HQs, newBook]
+const addHQ = (HQs, newHQ => [...HQs, newHQ])
 
 // Atualiza um quadrinho existente (caso encontre o id)
-const updateBook = (HQs, id, updates) =>
-  HQs.map(book => (book.id === id ? { ...book, ...updates } : book))
+const updateHQ = (HQs, id, updates) =>
+  HQs.map(hq => (hq.id === id ? { ...hq, ...updates } : hq))
 
 // Remove um quadrinho pelo id
-const deleteBook = (HQs, id) =>
-  HQs.filter(book => book.id !== id)
+const deleteHQ = (HQs, id) =>
+  HQs.filter(hq => hq.id !== id)
 
 // ========================
 // Listagem e formatação
@@ -64,11 +64,11 @@ const deleteBook = (HQs, id) =>
 
 // Lista os quadrinhos em formato de texto simples
 const listHQs = HQs =>
-  HQs.map(book => `${book.id} - "${book.title}" (${book.author}, ${book.year})`).join('\n')
+  HQs.map(hq => `${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})`).join('\n')
 
 // Lista apenas os quadrinhos de um autor específico
 const listHQsByAuthor = (HQs, authorName) =>
-  HQs.filter(book => book.author === authorName)
+  HQs.filter(hq => hq.author === authorName)
 
 // Lista apenas os quadrinhos de uma categoria específica
 const listHQsByCategory = (HQs, categorySelec) =>
@@ -83,24 +83,24 @@ const listHQsByYear = (HQs, yearSelec) =>
   HQs.filter(book => book.year === yearSelec)
 
 // Conta quantos quadrinhos cada autor possui
-// Exemplo de retorno: { "Machado de Assis": 5, "Jorge Amado": 8 }
+// Exemplo de retorno: { "Alan Moore": 2, "Neil Gaiman": 1 }
 const countHQsByAuthor = (HQs) =>
-  HQs.reduce((acc, book) => {
-    acc[book.author] = (acc[book.author] || 0) + 1
+  HQs.reduce((acc, hq) => {
+    acc[hq.author] = (acc[hq.author] || 0) + 1
     return acc
   }, {})
 
 // Permite formatar a lista de quadrinhos de forma flexível
 // Recebe uma função "formatFn" que define como cada quadrinho deve aparecer
 const formatHQs = (HQs, formatFn) =>
-  HQs.map((book, index) => formatFn(book, index)).join('\n')
+  HQs.map((hq, index) => formatFn(hq, index)).join('\n')
 
 // Formatação curta: apenas o título com numeração
-const shortFormat = (book, i) => `${i + 1}. ${book.title}`
+const shortFormat = (hq, i) => `${i + 1}. ${hq.title}`
 
 // Formatação completa: id, título, autor e ano
-const fullFormat = book =>
-  `${book.id} - "${book.title}" (${book.author}, ${book.year})`
+const fullFormat = hq =>
+  `${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})`
 
 // ========================
 // Transformações adicionais
@@ -109,19 +109,19 @@ const fullFormat = book =>
 // Marca quadrinhos antigos com base em um ano de corte
 // Adiciona a propriedade "old: true/false"
 const markOldHQs = (HQs, cutoffYear) =>
-  HQs.map(book => ({ ...book, old: book.year < cutoffYear }))
+  HQs.map(hq => ({ ...hq, old: hq.year < cutoffYear }))
 
 // Adiciona uma categoria com base no autor (função fornecida pelo usuário)
 const addCategoryByAuthor = (HQs, classifyAuthorFn) =>
-  HQs.map(book => ({ ...book, category: classifyAuthorFn(book.author) }))
+  HQs.map(hq => ({ ...hq, category: classifyAuthorFn(hq.author) }))
 
 // Aplica uma transformação nos títulos (ex: deixar tudo maiúsculo)
 const updateTitles = (HQs, transformFn) =>
-  HQs.map(book => ({ ...book, title: transformFn(book.title) }))
+  HQs.map(hq => ({ ...hq, title: transformFn(hq.title) }))
 
 // Permite renomear os campos de cada quadrinho (ex: trocar "title" por "nome")
 const renameFields = (HQs, renamerFn) =>
-  HQs.map(book => renamerFn(book))
+  HQs.map(hq => renamerFn(hq))
 
 // ========================
 // Exporta todas as funções como um objeto Livraria
@@ -132,7 +132,7 @@ export const HQLibrary = {
   loadHQs, saveHQs, resetHQs, clearHQs,
 
   // CRUD
-  addBook, updateBook, deleteBook,
+  addHQ, updateHQ, deleteHQ,
 
   // Exibição
   listHQs, listHQsByAuthor, listHQsByCategory, listHQsByPublisher,
