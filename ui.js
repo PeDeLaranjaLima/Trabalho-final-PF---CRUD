@@ -6,6 +6,8 @@ import { HQLibrary } from './lib.js';
 // Carrega os Quadrinhos salvos no localStorage.
 // Se não houver nada salvo, reinicia com os Quadrinhos padrão (resetHQs).
 let HQs = HQLibrary.loadHQs();
+let backlog = HQLibrary.loadBacklog();
+let favorites = HQLibrary.loadFavorites();
 
 // Garante que o estado atual seja salvo no localStorage
 HQLibrary.saveHQs(HQs);
@@ -50,6 +52,55 @@ function showHome() {
     buttons.style.display = 'grid';
     forms.innerHTML = '';
     output.innerHTML = '<img src="nave.png" alt="nave" style="width:24px; vertical-align:middle;"> Bem-vindo(a) à Livraria de Quadrinhos!';
+}
+
+// ========================
+// Função de listagem aprimorada
+// ========================
+function showHQList(list, title, showButtons = false) {
+    const listHtml = list.map(hq => `
+        <div class="hq-item">
+            <span>${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})</span>
+            ${showButtons ? `
+                <div class="action-buttons">
+                    <button class="add-to-backlog" data-id="${hq.id}">📚 Backlog</button>
+                    <button class="add-to-favorites" data-id="${hq.id}">⭐ Favoritos</button>
+                </div>
+            ` : ''}
+        </div>
+    `).join('');
+
+    showResult(`
+        <h3>${title}</h3>
+        ${listHtml || '<p>Nenhum quadrinho encontrado.</p>'}
+    `);
+
+    // Adiciona os event listeners aos botões
+    if (showButtons) {
+        document.querySelectorAll('.add-to-backlog').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const id = Number(e.target.dataset.id);
+                const hq = HQs.find(h => h.id === id);
+                if (hq) {
+                    backlog = HQLibrary.addToBacklog(backlog, hq);
+                    HQLibrary.saveBacklog(backlog);
+                    showResult(`"${hq.title}" adicionado ao backlog!`);
+                }
+            });
+        });
+
+        document.querySelectorAll('.add-to-favorites').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const id = Number(e.target.dataset.id);
+                const hq = HQs.find(h => h.id === id);
+                if (hq) {
+                    favorites = HQLibrary.addToFavorites(favorites, hq);
+                    HQLibrary.saveFavorites(favorites);
+                    showResult(`"${hq.title}" adicionado aos favoritos!`);
+                }
+            });
+        });
+    }
 }
 
 // ===== Forms =====
@@ -271,6 +322,9 @@ const actions = {
         HQs=[]; 
         showResult('Livraria esvaziada.');
     },
+    list: () => showHQList(HQs, 'Catálogo Completo', true),
+    showBacklog: () => showHQList(backlog, 'Meu Backlog'),
+    showFavorites: () => showHQList(favorites, 'Meus Favoritos'),
     listByAuthor: () => showListByAuthorForm(),
     countByAuthor: () => showAuthorChart(),
     listByYear: () => {
