@@ -1,14 +1,14 @@
 // Importa a classe/módulo principal que contém as funções de manipulação da livraria
-import { Livraria } from './lib.js';
+import { HQLibrary } from './lib.js';
 
 // ===== Dados e elementos =====
 
 // Carrega os Quadrinhos salvos no localStorage.
 // Se não houver nada salvo, reinicia com os Quadrinhos padrão (resetHQs).
-let HQs = Livraria.loadHQs();
+let HQs = HQLibrary.loadHQs();
 
 // Garante que o estado atual seja salvo no localStorage
-Livraria.saveHQs(HQs);
+HQLibrary.saveHQs(HQs);
 
 // Seleciona elementos HTML que serão manipulados pelo JavaScript
 const output = document.getElementById('output');    // Área de exibição de resultados
@@ -82,8 +82,8 @@ function showAddForm() {
             publisher: document.getElementById('addPublisher').value,
             category: document.getElementById('addCategory').value
         };
-        HQs = Livraria.addHQs(HQs, newHQs); // Chama a função da lib
-        Livraria.saveHQs(HQs); // Salva no localStorage
+        HQs = HQLibrary.addHQs(HQs, newHQs); // Chama a função da lib
+        HQLibrary.saveHQs(HQs); // Salva no localStorage
         showResult('Quadrinho adicionado!');
     });
 }
@@ -117,8 +117,8 @@ function showUpdateForm() {
         if(year) updates.year = Number(year);
         if(publisher) updates.publisher = publisher;
         if(category) updates.category = category;
-        HQs = Livraria.updateHQs(HQs, id, updates); // Atualiza dados
-        Livraria.saveHQs(HQs);
+        HQs = HQLibrary.updateHQs(HQs, id, updates); // Atualiza dados
+        HQLibrary.saveHQs(HQs);
         showResult('Quadrinho atualizado!');
     });
 }
@@ -136,8 +136,8 @@ function showDeleteForm() {
     document.getElementById('deleteForm').addEventListener('submit', e => {
         e.preventDefault();
         const id = Number(document.getElementById('deleteId').value);
-        HQs = Livraria.deleteHQs(HQs, id); // Remove
-        Livraria.saveHQs(HQs);
+        HQs = HQLibrary.deleteHQs(HQs, id); // Remove
+        HQLibrary.saveHQs(HQs);
         showResult('Quadrinho removido!');
     });
 }
@@ -155,15 +155,15 @@ function showListByAuthorForm() {
     document.getElementById('authorForm').addEventListener('submit', e => {
         e.preventDefault();
         const author = document.getElementById('authorName').value;
-        const filtered = Livraria.listHQsByAuthor(HQs, author);
-        const resultText = filtered.length === 0 ? 'Nenhum Quadrinho encontrado.' : Livraria.listHQs(filtered);
+        const filtered = HQLibrary.listHQsByAuthor(HQs, author);
+        const resultText = filtered.length === 0 ? 'Nenhum Quadrinho encontrado.' : HQLibrary.listHQs(filtered);
         showResult(resultText);
     });
 }
 
 // ===== Gráfico de Quadrinhos por autor =====
 function showAuthorChart() {
-    const counts = Livraria.countHQsByAuthor(HQs);
+    const counts = HQLibrary.countHQsByAuthor(HQs);
     const sorted = Object.entries(counts).sort((a,b) => a[1]-b[1]);
     const labels = sorted.map(([autor]) => autor);
     const data = sorted.map(([_, qtd]) => qtd);
@@ -221,7 +221,7 @@ function showAuthorChart() {
 
 // Listar quadrinhos por categoria
 function mostrarFormularioCategoria() {
-    const HQs = Livraria.loadHQs();
+    const HQs = HQLibrary.loadHQs();
     const categorias = [...new Set(HQs.map(hq => hq.category))].filter(Boolean);
     const options = categorias.map(cat => `<option value="${cat}"></option>`).join('');
 
@@ -244,12 +244,12 @@ function mostrarFormularioCategoria() {
             showResult('Categoria não informada.');
             return;
         }
-        const filtrados = Livraria.listHQsByCategory(HQs, categoria);
+        const filtrados = HQLibrary.listHQsByCategory(HQs, categoria);
         if (filtrados.length === 0) {
             showResult('Nenhum quadrinho encontrado para esta categoria.');
             return;
         }
-        const lista = Livraria.formatHQs(filtrados, Livraria.fullFormat);
+        const lista = HQLibrary.formatHQs(filtrados, HQLibrary.fullFormat);
         showResult(lista);
     });
 }
@@ -258,23 +258,23 @@ function mostrarFormularioCategoria() {
 // Dicionário que associa cada ação a uma função
 const actions = {
     init: () => {
-        HQs = Livraria.resetHQs();
-        Livraria.saveHQs(HQs);
+        HQs = HQLibrary.resetHQs();
+        HQLibrary.saveHQs(HQs);
         showResult('Livraria iniciada com lista de Quadrinhos padrão!');
     },
-    list: () => showResult(Livraria.listHQs(HQs)),
+    list: () => showResult(HQLibrary.listHQs(HQs)),
     add: () => showAddForm(),
     update: () => showUpdateForm(),
     delete: () => showDeleteForm(),
     clear: () => { 
-        Livraria.clearHQs(); 
+        HQLibrary.clearHQs(); 
         HQs=[]; 
         showResult('Livraria esvaziada.');
     },
     listByAuthor: () => showListByAuthorForm(),
     countByAuthor: () => showAuthorChart(),
     listByYear: () => {
-        const HQs = Livraria.loadHQs();
+        const HQs = HQLibrary.loadHQs();
         // Agrupa por ano
         const anos = {};
         HQs.forEach(hq => {
@@ -286,7 +286,7 @@ const actions = {
         const anosOrdenados = Object.keys(anos).sort((a, b) => a - b);
         anosOrdenados.forEach(ano => {
             resultado += `Ano ${ano}:\n`;
-            resultado += Livraria.formatHQs(anos[ano], Livraria.fullFormat) + '\n\n';
+            resultado += HQLibrary.formatHQs(anos[ano], HQLibrary.fullFormat) + '\n\n';
         });
         showResult(resultado.trim());
     },
