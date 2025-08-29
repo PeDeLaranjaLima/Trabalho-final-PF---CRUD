@@ -26,16 +26,16 @@ const clearHQs = () => {
 // Útil para resetar o sistema com dados de exemplo
 const resetHQs = () => {
 const HQs = [
-  { id: 1, title: "Watchmen", author: "Alan Moore", year: 1986 },
-  { id: 2, title: "Maus", author: "Art Spiegelman", year: 1991 },
-  { id: 3, title: "Sandman: Prelúdios e Noturnos", author: "Neil Gaiman", year: 1989 },
-  { id: 4, title: "Batman: The Dark Knight Returns", author: "Frank Miller", year: 1986 },
-  { id: 5, title: "V de Vingança", author: "Alan Moore", year: 1982 },
-  { id: 6, title: "Akira", author: "Katsuhiro Otomo", year: 1982 },
-  { id: 7, title: "Tintim no Tibete", author: "Hergé", year: 1960 },
-  { id: 8, title: "Asterix, o Gaulês", author: "René Goscinny e Albert Uderzo", year: 1961 },
-  { id: 9, title: "Homem-Aranha: A Última Caçada de Kraven", author: "J. M. DeMatteis", year: 1987 },
-  { id: 10, title: "X-Men: A Saga da Fênix Negra", author: "Chris Claremont", year: 1980 }
+  { id: 1, title: "Watchmen", author: "Alan Moore", year: 1986, publisher: "DC comics", category: "História em quadrinhos" },
+  { id: 2, title: "Maus", author: "Art Spiegelman", year: 1991, publisher: " Grupo Companhia das Letras", category: "História em quadrinhos"  },
+  { id: 3, title: "Sandman: Prelúdios e Noturnos", author: "Neil Gaiman", year: 1989, publisher: "DC comics", category: "História em quadrinhos"  },
+  { id: 4, title: "Batman: The Dark Knight Returns", author: "Frank Miller", year: 1986, publisher: "DC comics", category: "História em quadrinhos"  },
+  { id: 5, title: "V de Vingança", author: "Alan Moore", year: 1982, publisher: "DC comics", category: "História em quadrinhos"  },
+  { id: 6, title: "Akira", author: "Katsuhiro Otomo", year: 1982, publisher: "Editora JBC", category: "Mangá"  },
+  { id: 7, title: "Tintim no Tibete", author: "Hergé", year: 1960, publisher: "Companhia das letras", category: "História em quadrinhos"  },
+  { id: 8, title: "Asterix, o Gaulês", author: "René Goscinny e Albert Uderzo", year: 1961, publisher: "Editora Record", category: "História em quadrinhos"  },
+  { id: 9, title: "Homem-Aranha: A Última Caçada de Kraven", author: "J. M. DeMatteis", year: 1987, publisher: "Marvel comics", category: "História em quadrinhos"  },
+  { id: 10, title: "X-Men: A Saga da Fênix Negra", author: "Chris Claremont", year: 1980, publisher: "Marvel comics", category: "História em quadrinhos"  }
 ];
 
   saveHQs(HQs) // salva os quadrinhos no localStorage
@@ -69,6 +69,18 @@ const listHQs = HQs =>
 // Lista apenas os quadrinhos de um autor específico
 const listHQsByAuthor = (HQs, authorName) =>
   HQs.filter(book => book.author === authorName)
+
+// Lista apenas os quadrinhos de uma categoria específica
+const listHQsByCategory = (HQs, categorySelec) =>
+  HQs.filter(book => book.category === categorySelec)
+
+// Lista apenas os quadrinhos de uma editora específica
+const listHQsByPublisher = (HQs, publisherSelec) =>
+  HQs.filter(book => book.publisher === publisherSelec)
+
+// Lista apenas os quadrinhos de uma editora específica
+const listHQsByYear = (HQs, yearSelec) =>
+  HQs.filter(book => book.year === yearSelec)
 
 // Conta quantos quadrinhos cada autor possui
 // Exemplo de retorno: { "Machado de Assis": 5, "Jorge Amado": 8 }
@@ -115,7 +127,7 @@ const renameFields = (HQs, renamerFn) =>
 // Exporta todas as funções como um objeto Livraria
 // Isso facilita o uso em outros arquivos (ex: ui.js)
 // ========================
-export const Livraria = {
+export const HQLibrary = {
   // Persistência
   loadHQs, saveHQs, resetHQs, clearHQs,
 
@@ -123,8 +135,8 @@ export const Livraria = {
   addBook, updateBook, deleteBook,
 
   // Exibição
-  listHQs, listHQsByAuthor, countHQsByAuthor,
-  formatHQs, shortFormat, fullFormat,
+  listHQs, listHQsByAuthor, listHQsByCategory, listHQsByPublisher,
+  countHQsByAuthor,  formatHQs, shortFormat, fullFormat, listHQsByYear,
 
   // Transformações
   markOldHQs, addCategoryByAuthor, updateTitles, renameFields
