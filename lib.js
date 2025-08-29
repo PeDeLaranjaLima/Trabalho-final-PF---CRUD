@@ -127,7 +127,7 @@ const renameFields = (HQs, renamerFn) =>
 // Exporta todas as funções como um objeto Livraria
 // Isso facilita o uso em outros arquivos (ex: ui.js)
 // ========================
-export const Livraria = {
+export const HQLibrary = {
   // Persistência
   loadHQs, saveHQs, resetHQs, clearHQs,
 

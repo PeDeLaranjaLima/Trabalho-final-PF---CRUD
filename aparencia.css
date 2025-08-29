@@ -15,30 +15,34 @@ body {
     font-family: 'Times New Roman', Times, serif;
 }
 
-
-
 h1 {
         color: white;
         font-size: 40px;
     }
 
+    /* Container de boas-vindas */
+#output {
+    margin-top: 50px;
+    text-align: center;
+}
+
 #buttons {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* duas colunas iguais */
-  gap: 10px;
-  width: 450px;
-  margin: 0 auto; /* centraliza o bloco */
+  grid-template-columns: repeat(2, 1fr); /* duas colunas iguais */
+  gap: 12px 20px; /* espaço entre linhas e colunas */
+  width: 500px;   /* largura total aproximada */
+  margin: 0 auto; /* centraliza o bloco na página */
 }
 
 #buttons button {
   background-color: #0cecad;
   color: black;
   border: none;
-  padding: 10px 15px;
-  border-radius: 15px;
+  padding: 12px 18px;
+  border-radius: 12px;
   cursor: pointer;
   transition: background-color 0.3s;
-  width: 100%;
+  width: 100%; /* ocupa toda a célula da coluna */
 }
 
 #buttons button:hover {
@@ -46,24 +50,44 @@ h1 {
   color: rgb(251, 255, 32);
 }
 
-
-#last-button {
-  margin-top: 20px;
-  text-align: center; /* centraliza o botão */
+/* Estilo padrão do botão de voltar */
+.back-button {
+    background-color: #f40a0a;
+    color: rgb(253, 215, 0);
+    border: none;
+    border-radius: 15px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 12px;
+    display: inline-block;
+    transition: background-color 0.2s ease;
 }
 
-#last-button button {
-  background-color: #ff0000;
-  color: rgb(226, 237, 6);
-  border: none;
-  padding: 10px 15px;
-  border-radius: 15px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  width: 200px; /* largura fixa para não esticar */
+/* Efeito ao passar o mouse */
+.back-button:hover {
+    background-color: #47ea1a;
 }
 
-#last-button button:hover {
-  background-color: #11ee2a;
-  color: rgb(255, 98, 205);
+/* Efeito ao pressionar */
+.back-button:active {
+    background-color: #0e48e6;
+}
+
+
+/* Modificação da aparÊncia do botão */
+.back-button {
+    position: absolute;
+    top: 250px; /* Posição relativa dele no container com as listas */
+    left: 50px;
+    background-color: #ff0000;
+    color: rgb(250, 217, 0);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+#output, #forms {
+    position: relative;
 }
