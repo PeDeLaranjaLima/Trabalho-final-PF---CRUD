@@ -28,6 +28,9 @@
   Sistema da Livraria
 </h1> <!-- Título principal na tela -->
 
+<!-- Área para mostrar resultados (exemplo: lista de livros cadastrados) -->
+  <div id="output"></div>
+
   <!-- Área de botões para o menu principal -->
   <div id="buttons">
     <!-- Cada botão tem um atributo "data-action" para indicar a ação que será executada -->
@@ -43,15 +46,8 @@
     <button data-action="listByYear">9 - Listar quadrinho por ano de publicação</button>
     </div>
 
-  <div id="last-button">  
-    <button data-action="exit"> Autodestruição</button>
-  </div>
-
   <!-- Aqui será exibido dinamicamente o formulário de cada ação (por exemplo, adicionar livro) -->
   <div id="forms"></div>
-
-  <!-- Área para mostrar resultados (exemplo: lista de livros cadastrados) -->
-  <div id="output"></div>
 
   <!-- Biblioteca externa Chart.js (para gráficos, se forem usados) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
