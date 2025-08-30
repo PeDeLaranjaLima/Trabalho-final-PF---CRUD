@@ -33,7 +33,7 @@ function showResult(content, isForm = false) {
     container.innerHTML = content;
 
     const backButton = document.createElement('button');
-    backButton.textContent = 'Autodestruição';
+    backButton.textContent = 'voltar';
     backButton.id = 'backButton';
     backButton.className = 'back-button'; // Opcional: para estilização
 
