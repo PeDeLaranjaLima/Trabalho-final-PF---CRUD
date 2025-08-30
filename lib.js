@@ -1,5 +1,7 @@
 // Chave usada no localStorage para salvar os quadrinhos
 const STORAGE_KEY = "livraria::HQs"
+const STORAGE_KEY_BACKLOG = "livraria::backlog";
+const STORAGE_KEY_FAVORITES = "livraria::favorites";
 
 // ========================
 // Persistência (salvar, carregar, limpar os dados)
@@ -48,15 +50,15 @@ const HQs = [
 // ========================
 
 // Adiciona um novo quadrinho (retorna um novo array)
-const addBook = (HQs, newBook) => [...HQs, newBook]
+const addHQ = (HQs, newHQ) => [...HQs, newHQ]
 
 // Atualiza um quadrinho existente (caso encontre o id)
-const updateBook = (HQs, id, updates) =>
-  HQs.map(book => (book.id === id ? { ...book, ...updates } : book))
+const updateHQ = (HQs, id, updates) =>
+  HQs.map(hq => (hq.id === id ? { ...hq, ...updates } : hq))
 
 // Remove um quadrinho pelo id
-const deleteBook = (HQs, id) =>
-  HQs.filter(book => book.id !== id)
+const deleteHQ = (HQs, id) =>
+  HQs.filter(hq => hq.id !== id)
 
 // ========================
 // Listagem e formatação
@@ -64,43 +66,43 @@ const deleteBook = (HQs, id) =>
 
 // Lista os quadrinhos em formato de texto simples
 const listHQs = HQs =>
-  HQs.map(book => `${book.id} - "${book.title}" (${book.author}, ${book.year})`).join('\n')
+  HQs.map(hq => `${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})`).join('\n')
 
 // Lista apenas os quadrinhos de um autor específico
 const listHQsByAuthor = (HQs, authorName) =>
-  HQs.filter(book => book.author === authorName)
+  HQs.filter(hq => hq.author === authorName)
 
 // Lista apenas os quadrinhos de uma categoria específica
 const listHQsByCategory = (HQs, categorySelec) =>
-  HQs.filter(book => book.category === categorySelec)
+  HQs.filter(hq => hq.category === categorySelec)
 
 // Lista apenas os quadrinhos de uma editora específica
 const listHQsByPublisher = (HQs, publisherSelec) =>
-  HQs.filter(book => book.publisher === publisherSelec)
+  HQs.filter(hq => hq.publisher === publisherSelec)
 
 // Lista apenas os quadrinhos de uma editora específica
 const listHQsByYear = (HQs, yearSelec) =>
-  HQs.filter(book => book.year === yearSelec)
+  HQs.filter(hq => hq.year === yearSelec)
 
 // Conta quantos quadrinhos cada autor possui
 // Exemplo de retorno: { "Machado de Assis": 5, "Jorge Amado": 8 }
 const countHQsByAuthor = (HQs) =>
-  HQs.reduce((acc, book) => {
-    acc[book.author] = (acc[book.author] || 0) + 1
+  HQs.reduce((acc, hq) => {
+    acc[hq.author] = (acc[hq.author] || 0) + 1
     return acc
   }, {})
 
 // Permite formatar a lista de quadrinhos de forma flexível
 // Recebe uma função "formatFn" que define como cada quadrinho deve aparecer
 const formatHQs = (HQs, formatFn) =>
-  HQs.map((book, index) => formatFn(book, index)).join('\n')
+  HQs.map((hq, index) => formatFn(hq, index)).join('\n')
 
 // Formatação curta: apenas o título com numeração
-const shortFormat = (book, i) => `${i + 1}. ${book.title}`
+const shortFormat = (hq, i) => `${i + 1}. ${hq.title}`
 
 // Formatação completa: id, título, autor e ano
-const fullFormat = book =>
-  `${book.id} - "${book.title}" (${book.author}, ${book.year})`
+const fullFormat = hq =>
+  `${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})`
 
 // ========================
 // Transformações adicionais
@@ -109,19 +111,49 @@ const fullFormat = book =>
 // Marca quadrinhos antigos com base em um ano de corte
 // Adiciona a propriedade "old: true/false"
 const markOldHQs = (HQs, cutoffYear) =>
-  HQs.map(book => ({ ...book, old: book.year < cutoffYear }))
+  HQs.map(hq => ({ ...hq, old: hq.year < cutoffYear }))
 
 // Adiciona uma categoria com base no autor (função fornecida pelo usuário)
 const addCategoryByAuthor = (HQs, classifyAuthorFn) =>
-  HQs.map(book => ({ ...book, category: classifyAuthorFn(book.author) }))
+  HQs.map(hq => ({ ...hq, category: classifyAuthorFn(hq.author) }))
 
 // Aplica uma transformação nos títulos (ex: deixar tudo maiúsculo)
 const updateTitles = (HQs, transformFn) =>
-  HQs.map(book => ({ ...book, title: transformFn(book.title) }))
+  HQs.map(hq => ({ ...hq, title: transformFn(hq.title) }))
 
 // Permite renomear os campos de cada quadrinho (ex: trocar "title" por "nome")
 const renameFields = (HQs, renamerFn) =>
-  HQs.map(book => renamerFn(book))
+  HQs.map(hq => renamerFn(hq))
+
+// ========================
+// Gerenciamento de listas personalizadas
+// ========================
+
+// Carrega uma lista específica do localStorage
+const loadList = (key) => {
+  const data = localStorage.getItem(key);
+  return data ? JSON.parse(data) : [];
+};
+
+// Salva uma lista específica no localStorage
+const saveList = (key, list) => {
+  localStorage.setItem(key, JSON.stringify(list));
+};
+
+// Adiciona um quadrinho a uma lista, se ele ainda não estiver lá
+const addToList = (list, hq) => {
+  // Evita duplicatas na lista
+  if (list.some((item) => item.id === hq.id)) {
+    console.log("Quadrinho já está na lista.");
+    return list;
+  }
+  return [...list, hq];
+};
+
+// Remove um quadrinho de uma lista pelo id
+const removeFromList = (list, id) => {
+  return list.filter((hq) => hq.id !== id);
+};
 
 // ========================
 // Exporta todas as funções como um objeto Livraria
@@ -132,12 +164,23 @@ export const HQLibrary = {
   loadHQs, saveHQs, resetHQs, clearHQs,
 
   // CRUD
-  addBook, updateBook, deleteBook,
+  addHQ, updateHQ, deleteHQ,
 
   // Exibição
   listHQs, listHQsByAuthor, listHQsByCategory, listHQsByPublisher,
   countHQsByAuthor,  formatHQs, shortFormat, fullFormat, listHQsByYear,
 
   // Transformações
-  markOldHQs, addCategoryByAuthor, updateTitles, renameFields
+  markOldHQs, addCategoryByAuthor, updateTitles, renameFields,
+
+  // Listas personalizadas
+  loadBacklog: () => loadList(STORAGE_KEY_BACKLOG),
+  saveBacklog: (backlog) => saveList(STORAGE_KEY_BACKLOG, backlog),
+  addToBacklog: (backlog, hq) => addToList(backlog, hq),
+  removeFromBacklog: (backlog, id) => removeFromList(backlog, id),
+
+  loadFavorites: () => loadList(STORAGE_KEY_FAVORITES),
+  saveFavorites: (favorites) => saveList(STORAGE_KEY_FAVORITES, favorites),
+  addToFavorites: (favorites, hq) => addToList(favorites, hq),
+  removeFromFavorites: (favorites, id) => removeFromList(favorites, id),
 }
