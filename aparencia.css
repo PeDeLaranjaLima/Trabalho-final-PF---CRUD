@@ -91,3 +91,32 @@ h1 {
 #output, #forms {
     position: relative;
 }
+
+
+/* Parte que mostra as caixinhas explicando o que cada botão faz */
+/* Estilo dos tooltips -> o texto é definido na tag do HTML e a aparência é modificada aqui */
+#buttons button {
+  position: relative; /* para posicionar o tooltip em relação ao botão */
+}
+
+#buttons button::after {
+  content: attr(data-tooltip); /* pega o texto do atributo data-tooltip */
+  position: absolute;
+  bottom: 120%; /* aparece acima do botão */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  font-size: 14px;
+  opacity: 0; /* inicialmente invisível */
+  pointer-events: none; /* não atrapalha o mouse */
+  transition: opacity 0.3s ease;
+}
+
+/* Mostra o tooltip ao passar o mouse */
+#buttons button:hover::after {
+  opacity: 1;
+}

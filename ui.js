@@ -31,7 +31,7 @@ function showResult(content, isForm = false) {
     container.innerHTML = content;
 
     const backButton = document.createElement('button');
-    backButton.textContent = 'Autodestruição';
+    backButton.textContent = 'voltar';
     backButton.id = 'backButton';
     backButton.className = 'back-button'; // Opcional: para estilização
 
@@ -82,7 +82,7 @@ function showAddForm() {
             publisher: document.getElementById('addPublisher').value,
             category: document.getElementById('addCategory').value
         };
-        HQs = HQLibrary.addHQs(HQs, newHQs); // Chama a função da lib
+        HQs = HQLibrary.addHQ(HQs, newHQs); // Chama a função da lib
         HQLibrary.saveHQs(HQs); // Salva no localStorage
         showResult('Quadrinho adicionado!');
     });
@@ -117,7 +117,7 @@ function showUpdateForm() {
         if(year) updates.year = Number(year);
         if(publisher) updates.publisher = publisher;
         if(category) updates.category = category;
-        HQs = HQLibrary.updateHQs(HQs, id, updates); // Atualiza dados
+        HQs = HQLibrary.updateHQ(HQs, id, updates); // Atualiza dados
         HQLibrary.saveHQs(HQs);
         showResult('Quadrinho atualizado!');
     });
@@ -136,7 +136,7 @@ function showDeleteForm() {
     document.getElementById('deleteForm').addEventListener('submit', e => {
         e.preventDefault();
         const id = Number(document.getElementById('deleteId').value);
-        HQs = HQLibrary.deleteHQs(HQs, id); // Remove
+        HQs = HQLibrary.deleteHQ(HQs, id); // Remove
         HQLibrary.saveHQs(HQs);
         showResult('Quadrinho removido!');
     });
