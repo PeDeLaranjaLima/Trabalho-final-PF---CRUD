@@ -45,7 +45,65 @@ function showResult(content, isForm = false) {
     backButton.addEventListener('click', showHome);
 }
 
-/**
+// Função para mostrar alerta temporário em formato de pop up
+function showTemporaryAlert(message, duration = 3000) {
+    const alertBox = document.createElement("div");
+    alertBox.textContent = message;
+    alertBox.style.position = "fixed";
+    alertBox.style.top = "40px";
+    alertBox.style.right = "40px";
+    alertBox.style.padding = "10px 20px";
+    alertBox.style.backgroundColor = "#e956bcff";
+    alertBox.style.color = "blue";
+    alertBox.style.borderRadius = "8px";
+    alertBox.style.boxShadow = "0 4px 8px rgba(71, 216, 202, 1)";
+    alertBox.style.zIndex = "9999";
+    alertBox.style.fontSize = "14px";
+    document.body.appendChild(alertBox);
+
+    // Remove após 3000 segundos
+    setTimeout(() => {
+        alertBox.remove();
+    }, duration);
+}
+
+function loadPage(content, isForm = false, duration = 2000) {
+    createLoaderOverlay(); // mostra tela inteira de loading
+    setTimeout(() => {
+        removeLoaderOverlay(); // remove loader
+        showResult(content, isForm); // mostra conteúdo real
+    }, duration);
+}
+
+function createLoaderOverlay(message = "Carregando...") {
+    const overlay = document.createElement('div');
+    overlay.id = 'loaderOverlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = 0;
+    overlay.style.left = 0;
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.zIndex = 1000;
+
+    overlay.innerHTML = `
+        <img src="loading.gif" alt="Carregando..." style="width:400px; height:400px; margin-bottom: 10px;">
+        <p>${message}</p>
+    `;
+
+    document.body.appendChild(overlay);
+}
+
+function removeLoaderOverlay() {
+    const overlay = document.getElementById('loaderOverlay');
+    if (overlay) overlay.remove();
+}
+
+/*
  * Retorna à tela inicial, mostrando os botões e limpando o resto.
  */
 function showHome() {
@@ -84,7 +142,8 @@ function showHQList(list, title, showButtons = false) {
                 if (hq) {
                     backlog = HQLibrary.addToBacklog(backlog, hq);
                     HQLibrary.saveBacklog(backlog);
-                    showResult(`"${hq.title}" adicionado ao backlog!`);
+                    showTemporaryAlert(`"${hq.title}" adicionado ao backlog!`); // Envia a mensagem para a função de alerta
+                    // o tempo está definido na própria função
                 }
             });
         });
@@ -96,7 +155,9 @@ function showHQList(list, title, showButtons = false) {
                 if (hq) {
                     favorites = HQLibrary.addToFavorites(favorites, hq);
                     HQLibrary.saveFavorites(favorites);
-                    showResult(`"${hq.title}" adicionado aos favoritos!`);
+                    //showResult();
+                    showTemporaryAlert(`"${hq.title}" adicionado aos favoritos!`) // Envia a mensagem para a função de alerta
+                    // o tempo está definido na própria função
                 }
             });
         });
@@ -237,36 +298,31 @@ function showAuthorChart() {
     const colors = labels.map((_, i) => palette[i % palette.length]);
 
     // Apenas um canvas
-    showResult(`<canvas id="authorChart" style="max-width:400px; max-height:400px; display:block; margin:0 auto;"></canvas>`);
+   showResult(`<canvas id="authorChart" width="900" height="900" style="display:block; margin:0 auto;"></canvas>`);
 
-    const ctx = document.getElementById('authorChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels,
-            datasets: [{
-                label: 'Quadrinhos',
-                data,
-                backgroundColor: colors,
-                borderColor: '#000000ff',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: { display: true, position: 'right' },
-                title: {
-                    display: true,
-                    text: 'Quantidade de Quadrinhos por Autor', // título agora aparece
-                    font: { size: 18 },
-                    color: '#fb0cebff', 
-                    padding: { top: 10, bottom: 20 }
+    // Use setTimeout para garantir que o DOM tenha atualizado
+    setTimeout(() => {
+        const ctx = document.getElementById('authorChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: { labels, datasets: [{ label: 'Quadrinhos', data, backgroundColor: colors, borderColor: '#000000', borderWidth: 2 }] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: true, position: 'right' },
+                    /*title: {
+                        display: true,
+                        text: 'Quantidade de Quadrinhos por Autor',
+                        font: { size: 18 },
+                        color: '#fb0ceb',
+                        padding: { top: 10, bottom: 20 }
+                    }*/
                 }
             }
-        }
-    });
+        });
+    }, 50); // 50ms é suficiente
+
 }
 
 
@@ -305,45 +361,165 @@ function mostrarFormularioCategoria() {
     });
 }
 
+// Mostrar a tela de backlog
+// Mostrar a tela de backlog e permitir marcar como lido
+function showBacklogList(backlog, readList) {
+    const listHtml = backlog.map(hq => `
+        <div class="hq-item">
+            <label>
+                <input type="checkbox" class="mark-read" data-id="${hq.id}">
+                ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+            </label>
+        </div>
+    `).join('');
+
+    showResult(`
+        <h3>Meu Backlog</h3>
+        ${listHtml || '<p>Backlog vazio.</p>'}
+    `);
+
+    // Adiciona evento para marcar como lido
+    document.querySelectorAll('.mark-read').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const id = Number(e.target.dataset.id);
+            // Move o quadrinho para lidos
+            const result = HQLibrary.moveToRead(backlog, readList, id);
+            backlog = result.backlog;
+            readList = result.readList;
+
+            // Salva as alterações
+            HQLibrary.saveBacklog(backlog);
+            HQLibrary.saveRead(readList);
+
+            // Mostra mensagem de confirmação
+            showTemporaryAlert(`"${HQs.find(h => h.id === id)?.title}" marcado como lido!`);
+
+            // Recarrega a lista para refletir a mudança
+            showBacklogList(backlog, readList);
+        });
+    });
+}
+
+
+// Mostra a tela de favoritos
+function showFavoritieslogList(favorites) {
+    const listHtml = favorites.map(hq => `
+        <div class="hq-item">
+            <input type="checkbox" class="remove-favorite" data-id="${hq.id}">
+            ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+        </div>
+    `).join('');
+
+    showResult(`
+        <h3>Meus Favoritos</h3>
+        ${listHtml || '<p>Nenhum quadrinho favoritado.</p>'}
+    `);
+
+    // Marck boox de remover dos favoritos
+    document.querySelectorAll('.remove-favorite').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const id = Number(e.target.dataset.id);
+            favorites = favorites.filter(hq => hq.id !== id);
+            HQLibrary.saveFavorites(favorites);
+            showFavoritieslogList(favorites); // recarrega a lista, atualizando a página
+            showTemporaryAlert('Quadrinho removido dos favoritos!');
+        });
+    });
+}
+
+// --- Formulário para listar Quadrinhos por ano ---
+function showListByYearForm() {
+    const HQs = HQLibrary.loadHQs();
+    // Cria lista de anos disponíveis
+    const anos = [...new Set(HQs.map(hq => hq.year))].sort((a, b) => a - b);
+    const options = anos.map(ano => `<option value="${ano}"></option>`).join('');
+
+    showResult(`
+        <h3>Listar Quadrinhos por Ano</h3>
+        <form id="yearForm">
+            <label for="yearInput">Ano:</label>
+            <input type="number" id="yearInput" name="year" list="listaAnos" required />
+            <datalist id="listaAnos">
+                ${options}
+            </datalist>
+            <button type="submit">Listar</button>
+        </form>
+        <div style="font-size: 0.9em; color: #888; margin-top: 4px;">
+            Anos disponíveis: ${anos.join(', ')}
+        </div>
+    `, true);
+
+    document.getElementById('yearForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const year = Number(document.getElementById('yearInput').value);
+        if (!year) {
+            showTemporaryAlert('Ano não informado!');
+            return;
+        }
+        const filtrados = HQs.filter(hq => hq.year === year);
+        if (filtrados.length === 0) {
+            showResult(`Nenhum quadrinho encontrado para o ano ${year}.`);
+            return;
+        }
+        showHQList(filtrados, `Quadrinhos do ano ${year}`);
+    });
+}
+
+// Formulário com a opção de remover da lista de lidos e voltar para o backlog - acho que é algo legal de ter
+function showReadForm() {
+    const listHtml = readList.map(hq => `
+        <div class="hq-item">
+            <span>${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})</span>
+            <button class="remove-read" data-id="${hq.id}">❌ Remover</button>
+        </div>
+    `).join('');
+
+    showResult(`
+        <h3>Quadrinhos Lidos</h3>
+        ${listHtml || '<p>Nenhum quadrinho lido ainda.</p>'}
+    `);
+
+    // Botão de remover da lista de lidos
+    document.querySelectorAll('.remove-read').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const id = Number(e.target.dataset.id);
+            readList = readList.filter(hq => hq.id !== id);
+            HQLibrary.saveRead(readList);
+            showReadForm(); // Atualiza tela
+        });
+    });
+}
+
+
+let readList = HQLibrary.loadRead();
+
 // ===== Actions =====
 // Dicionário que associa cada ação a uma função
 const actions = {
     init: () => {
         HQs = HQLibrary.resetHQs();
         HQLibrary.saveHQs(HQs);
-        showResult('Livraria iniciada com lista de Quadrinhos padrão!');
+        showTemporaryAlert('Livraria iniciada com lista de Quadrinhos padrão!');
     },
     list: () => showResult(HQLibrary.listHQs(HQs)),
+    listRead: () => showReadForm(),
     add: () => showAddForm(),
     update: () => showUpdateForm(),
     delete: () => showDeleteForm(),
     clear: () => { 
         HQLibrary.clearHQs(); 
         HQs=[]; 
-        showResult('Livraria esvaziada.');
+        showTemporaryAlert('Livraria esvaziada.');
     },
+
+    showBacklog: () => showBacklogList(backlog, readList),
+    showRead: () => showHQList(readList, 'Já Lidos'),
+    listRead: () => showHQList(readList, 'Quadrinhos Lidos'),
     list: () => showHQList(HQs, 'Catálogo Completo', true),
-    showBacklog: () => showHQList(backlog, 'Meu Backlog'),
-    showFavorites: () => showHQList(favorites, 'Meus Favoritos'),
+    showFavorites: () => showFavoritieslogList(favorites),
     listByAuthor: () => showListByAuthorForm(),
     countByAuthor: () => showAuthorChart(),
-    listByYear: () => {
-        const HQs = HQLibrary.loadHQs();
-        // Agrupa por ano
-        const anos = {};
-        HQs.forEach(hq => {
-            if (!anos[hq.year]) anos[hq.year] = [];
-            anos[hq.year].push(hq);
-        });
-        // Monta a string de saída
-        let resultado = '';
-        const anosOrdenados = Object.keys(anos).sort((a, b) => a - b);
-        anosOrdenados.forEach(ano => {
-            resultado += `Ano ${ano}:\n`;
-            resultado += HQLibrary.formatHQs(anos[ano], HQLibrary.fullFormat) + '\n\n';
-        });
-        showResult(resultado.trim());
-    },
+    listByYear : () => showListByYearForm(),
     listByCategory: () => mostrarFormularioCategoria(),
     exit: () => showResult()
 };
