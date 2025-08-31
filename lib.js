@@ -3,6 +3,9 @@ const STORAGE_KEY = "livraria::HQs"
 const STORAGE_KEY_BACKLOG = "livraria::backlog";
 const STORAGE_KEY_FAVORITES = "livraria::favorites";
 
+const STORAGE_KEY_READ = "livraria::read"; // Chamada para salvar em uma lista separada de lidos e não lidos
+// Poderia ter  o status lido na lista também, mas acho que assim fica mais interessante para fazermos operações em listas separadas
+
 // ========================
 // Persistência (salvar, carregar, limpar os dados)
 // ========================
@@ -23,6 +26,18 @@ const clearHQs = () => {
   localStorage.removeItem(STORAGE_KEY)
   console.log("Livraria limpa.")
 }
+
+// Move os quadrinhos para a lista de lidos
+const moveToRead = (backlog, readList, id) => {
+  const hq = backlog.find(item => item.id === id);
+  if (!hq) return { backlog, readList };
+
+  return {
+    backlog: backlog.filter(item => item.id !== id),
+    readList: [...readList, hq]
+  };
+};
+
 
 // Restaura uma lista inicial de quadrinhos (pré-cadastrados)
 // Útil para resetar o sistema com dados de exemplo
@@ -155,13 +170,17 @@ const removeFromList = (list, id) => {
   return list.filter((hq) => hq.id !== id);
 };
 
+const listRead = (list) => {
+  return list.map(hq => listHQs(hq))
+}
+
 // ========================
 // Exporta todas as funções como um objeto Livraria
 // Isso facilita o uso em outros arquivos (ex: ui.js)
 // ========================
 export const HQLibrary = {
   // Persistência
-  loadHQs, saveHQs, resetHQs, clearHQs,
+  loadHQs, saveHQs, resetHQs, clearHQs, listRead,
 
   // CRUD
   addHQ, updateHQ, deleteHQ,
@@ -178,6 +197,10 @@ export const HQLibrary = {
   saveBacklog: (backlog) => saveList(STORAGE_KEY_BACKLOG, backlog),
   addToBacklog: (backlog, hq) => addToList(backlog, hq),
   removeFromBacklog: (backlog, id) => removeFromList(backlog, id),
+  loadRead: () => loadList(STORAGE_KEY_READ),
+  saveRead: (read) => saveList(STORAGE_KEY_READ, read),
+  moveToRead,
+
 
   loadFavorites: () => loadList(STORAGE_KEY_FAVORITES),
   saveFavorites: (favorites) => saveList(STORAGE_KEY_FAVORITES, favorites),

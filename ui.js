@@ -305,6 +305,73 @@ function mostrarFormularioCategoria() {
     });
 }
 
+function showBacklogList(backlog, readList) {
+    const listHtml = backlog.map(hq => `
+        <div class="hq-item">
+            <label>
+                <input type="checkbox" class="mark-read" data-id="${hq.id}">
+                ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+            </label>
+        </div>
+    `).join('');
+
+    showResult(`
+        <h3>Meu Backlog</h3>
+        ${listHtml || '<p>Backlog vazio.</p>'}
+    `);
+
+    // Quando marcar como lido, move para lista de lidos
+    document.querySelectorAll('.mark-read').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const id = Number(e.target.dataset.id);
+            const result = HQLibrary.moveToRead(backlog, readList, id);
+            backlog = result.backlog;
+            readList = result.readList;
+            HQLibrary.saveBacklog(backlog);
+            HQLibrary.saveRead(readList);
+            showBacklogList(backlog, readList); // Atualiza a tela
+        });
+    });
+}
+
+// Formulário com a opção de remover da lista de lidos e voltar para o backlog - acho que é algo legal de ter
+function showReadForm() {
+    const listHtml = readList.map(hq => `
+        <div class="hq-item">
+            <span>${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})</span>
+            <button class="remove-read" data-id="${hq.id}">❌ Remover</button>
+        </div>
+    `).join('');
+
+    showResult(`
+        <h3>Quadrinhos Lidos</h3>
+        ${listHtml || '<p>Nenhum quadrinho lido ainda.</p>'}
+    `);
+
+    // Botão de remover da lista de lidos
+    document.querySelectorAll('.remove-read').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const id = Number(e.target.dataset.id);
+            readList = readList.filter(hq => hq.id !== id);
+            HQLibrary.saveRead(readList);
+            showReadForm(); // Atualiza tela
+        });
+    });
+}
+
+
+let readList = HQLibrary.loadRead();
+
+// Função de loading
+function showLoading(message = 'Carregando...') {
+    showResult(`
+        <div style="text-align:center; padding:20px;">
+            <img src="loading.gif" alt="Carregando..." style="width:50px; height:50px;">
+            <p>${message}</p>
+        </div>
+    `);
+}
+
 // ===== Actions =====
 // Dicionário que associa cada ação a uma função
 const actions = {
@@ -314,6 +381,7 @@ const actions = {
         showResult('Livraria iniciada com lista de Quadrinhos padrão!');
     },
     list: () => showResult(HQLibrary.listHQs(HQs)),
+    listRead: () => showReadForm(),
     add: () => showAddForm(),
     update: () => showUpdateForm(),
     delete: () => showDeleteForm(),
@@ -322,8 +390,12 @@ const actions = {
         HQs=[]; 
         showResult('Livraria esvaziada.');
     },
+
+    showBacklog: () => showBacklogList(backlog, readList),
+    showRead: () => showHQList(readList, 'Já Lidos'),
+
     list: () => showHQList(HQs, 'Catálogo Completo', true),
-    showBacklog: () => showHQList(backlog, 'Meu Backlog'),
+    //showBacklog: () => showHQList(backlog, 'Meu Backlog'),
     showFavorites: () => showHQList(favorites, 'Meus Favoritos'),
     listByAuthor: () => showListByAuthorForm(),
     countByAuthor: () => showAuthorChart(),
