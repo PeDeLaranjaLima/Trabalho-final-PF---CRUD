@@ -45,7 +45,29 @@ function showResult(content, isForm = false) {
     backButton.addEventListener('click', showHome);
 }
 
-/**
+// Função para mostrar alerta temporário em formato de pop up
+function showTemporaryAlert(message, duration = 3000) {
+    const alertBox = document.createElement("div");
+    alertBox.textContent = message;
+    alertBox.style.position = "fixed";
+    alertBox.style.top = "40px";
+    alertBox.style.right = "40px";
+    alertBox.style.padding = "10px 20px";
+    alertBox.style.backgroundColor = "#e956bcff";
+    alertBox.style.color = "blue";
+    alertBox.style.borderRadius = "8px";
+    alertBox.style.boxShadow = "0 4px 8px rgba(71, 216, 202, 1)";
+    alertBox.style.zIndex = "9999";
+    alertBox.style.fontSize = "14px";
+    document.body.appendChild(alertBox);
+
+    // Remove após 3000 segundos
+    setTimeout(() => {
+        alertBox.remove();
+    }, duration);
+}
+
+/*
  * Retorna à tela inicial, mostrando os botões e limpando o resto.
  */
 function showHome() {
@@ -84,7 +106,8 @@ function showHQList(list, title, showButtons = false) {
                 if (hq) {
                     backlog = HQLibrary.addToBacklog(backlog, hq);
                     HQLibrary.saveBacklog(backlog);
-                    showResult(`"${hq.title}" adicionado ao backlog!`);
+                    showTemporaryAlert(`"${hq.title}" adicionado ao backlog!`); // Envia a mensagem para a função de alerta
+                    // o tempo está definido na própria função
                 }
             });
         });
@@ -96,7 +119,9 @@ function showHQList(list, title, showButtons = false) {
                 if (hq) {
                     favorites = HQLibrary.addToFavorites(favorites, hq);
                     HQLibrary.saveFavorites(favorites);
-                    showResult(`"${hq.title}" adicionado aos favoritos!`);
+                    //showResult();
+                    showTemporaryAlert(`"${hq.title}" adicionado aos favoritos!`) // Envia a mensagem para a função de alerta
+                    // o tempo está definido na própria função
                 }
             });
         });
@@ -305,6 +330,101 @@ function mostrarFormularioCategoria() {
     });
 }
 
+// Mostrar a tela de backlog
+function showBacklogList(backlog, readList) {
+    const listHtml = backlog.map(hq => `
+        <div class="hq-item">
+            <label>
+                <input type="checkbox" class="mark-read" data-id="${hq.id}">
+                ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+            </label>
+        </div>
+    `).join('');
+
+    showResult(`
+        <h3>Meu Backlog</h3>
+        ${listHtml || '<p>Backlog vazio.</p>'}
+    `);
+
+    // Quando marcar como lido, move para lista de lidos
+    document.querySelectorAll('.mark-read').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const id = Number(e.target.dataset.id);
+            const result = HQLibrary.moveToRead(backlog, readList, id);
+            backlog = result.backlog;
+            readList = result.readList;
+            HQLibrary.saveBacklog(backlog);
+            HQLibrary.saveRead(readList);
+            showBacklogList(backlog, readList); // Atualiza a tela
+        });
+    });
+}
+
+// Mostra a tela de favoritos
+function showFavoritieslogList(favorites) {
+    const listHtml = favorites.map(hq => `
+        <div class="hq-item">
+            <input type="checkbox" class="remove-favorite" data-id="${hq.id}">
+            ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+        </div>
+    `).join('');
+
+    showResult(`
+        <h3>Meus Favoritos</h3>
+        ${listHtml || '<p>Nenhum quadrinho favoritado.</p>'}
+    `);
+
+    // Marck boox de remover dos favoritos
+    document.querySelectorAll('.remove-favorite').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const id = Number(e.target.dataset.id);
+            favorites = favorites.filter(hq => hq.id !== id);
+            HQLibrary.saveFavorites(favorites);
+            showFavoritieslogList(favorites); // recarrega a lista, atualizando a página
+            showTemporaryAlert('Quadrinho removido dos favoritos!');
+        });
+    });
+}
+
+
+// Formulário com a opção de remover da lista de lidos e voltar para o backlog - acho que é algo legal de ter
+function showReadForm() {
+    const listHtml = readList.map(hq => `
+        <div class="hq-item">
+            <span>${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})</span>
+            <button class="remove-read" data-id="${hq.id}">❌ Remover</button>
+        </div>
+    `).join('');
+
+    showResult(`
+        <h3>Quadrinhos Lidos</h3>
+        ${listHtml || '<p>Nenhum quadrinho lido ainda.</p>'}
+    `);
+
+    // Botão de remover da lista de lidos
+    document.querySelectorAll('.remove-read').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const id = Number(e.target.dataset.id);
+            readList = readList.filter(hq => hq.id !== id);
+            HQLibrary.saveRead(readList);
+            showReadForm(); // Atualiza tela
+        });
+    });
+}
+
+
+let readList = HQLibrary.loadRead();
+
+// Função de loading
+function showLoading(message = 'Carregando...') {
+    showResult(`
+        <div style="text-align:center; padding:20px;">
+            <img src="loading.gif" alt="Carregando..." style="width:50px; height:50px;">
+            <p>${message}</p>
+        </div>
+    `);
+}
+
 // ===== Actions =====
 // Dicionário que associa cada ação a uma função
 const actions = {
@@ -314,6 +434,7 @@ const actions = {
         showResult('Livraria iniciada com lista de Quadrinhos padrão!');
     },
     list: () => showResult(HQLibrary.listHQs(HQs)),
+    listRead: () => showReadForm(),
     add: () => showAddForm(),
     update: () => showUpdateForm(),
     delete: () => showDeleteForm(),
@@ -322,9 +443,13 @@ const actions = {
         HQs=[]; 
         showResult('Livraria esvaziada.');
     },
+
+    showBacklog: () => showBacklogList(backlog, readList),
+    showRead: () => showHQList(readList, 'Já Lidos'),
+
     list: () => showHQList(HQs, 'Catálogo Completo', true),
-    showBacklog: () => showHQList(backlog, 'Meu Backlog'),
-    showFavorites: () => showHQList(favorites, 'Meus Favoritos'),
+    //showBacklog: () => showHQList(backlog, 'Meu Backlog'),
+    showFavorites: () => showFavoritieslogList(favorites),
     listByAuthor: () => showListByAuthorForm(),
     countByAuthor: () => showAuthorChart(),
     listByYear: () => {

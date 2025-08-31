@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" /> <!-- Define que os caracteres usados são UTF-8 (permite acentos e emojis) -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Ajusta o layout para dispositivos móveis -->
-  <title>HQspace</title> <!-- Título que aparece na aba do navegador -->
+  <title>Livraria</title> <!-- Título que aparece na aba do navegador -->
 
    <link rel="stylesheet" href="aparencia.css">
 
@@ -22,10 +22,14 @@
     input { margin: 5px; padding: 5px; } /* Campos de texto mais organizados */
   </style>
 </head>
+
+<!-- Container de notificações no HTML, fora da área output/forms-->
+<div id="toast-container"></div>
+
 <body>
   <h1>
   <img src="nave.png" alt="Ícone de estrela" style="width:32px; height:32px; vertical-align:middle; margin-right:8px;">
-  HQ's space
+  Sistema da Livraria
 </h1> <!-- Título principal na tela -->
 
 <!-- Área para mostrar resultados (exemplo: lista de livros cadastrados) -->
@@ -34,19 +38,20 @@
   <!-- Área de botões para o menu principal -->
   <div id="buttons">
     <!-- Cada botão tem um atributo "data-action" para indicar a ação que será executada -->
-    <button data-action="init">0 - Iniciar Livraria</button> <!-- NOVO -->
-    <button data-action="list">1 - Listar quadrinhos</button>
-    <button data-action="add">2 - Adicionar novo quadrinho</button>
-    <button data-action="update">3 - Atualizar quadrinho</button>
-    <button data-action="delete">4 - Remover quadrinho</button>
-    <button data-action="clear">5 - Limpar livraria</button>
-    <button data-action="listByAuthor">6 - Listar quadrinho por autor</button>
-    <button data-action="countByAuthor">7 - Contar quadrinho por autor</button>
-    <button data-action="listByCategory">8 - Listar quadrinho por categoria</button>
-    <button data-action="listByYear">9 - Listar quadrinho por ano de publicação</button>
-    <button data-action="showBacklog">10 - Meu Backlog</button>
-    <button data-action="showFavorites">11 - Meus Favoritos</button>
-    </div>
+    <button data-action="init" data-tooltip="Inicia a livraria">0 - Iniciar Livraria</button> <!-- NOVO -->
+    <button data-action="list" data-tooltip="Lista todos os quadrinhos">1 - Listar quadrinhos</button>
+    <button data-action="add" data-tooltip="Adiciona um quadrinho">2 - Adicionar novo quadrinho</button>
+    <button data-action="update" data-tooltip="Atualiza os quadrinhos">3 - Atualizar quadrinho</button>
+    <button data-action="delete" data-tooltip="Exclui um quadrinho">4 - Remover quadrinho</button>
+    <button data-action="clear" data-tooltip="Limpa todos os quadrinhos da lista">5 - Limpar livraria</button>
+    <button data-action="listByAuthor" data-tooltip="Lista todos os quadrinhos com o mesmo autor">6 - Listar quadrinho por autor</button>
+    <button data-action="countByAuthor" data-tooltip="Apresenta um gráfico com a contagem de quadrinhos por autor">7 - Contar quadrinho por autor</button>
+    <button data-action="listByCategory" data-tooltip="Lista todos os quadrinhos da mesma categoria (Mangá ou HQ)">8 - Listar quadrinho por categoria</button>
+    <button data-action="listByYear" data-tooltip="Listar quadrinho por ano de publicação">9 - Lista todos os quadrinhos separados por ano</button>
+    <button data-action="showFavorites" data-tooltip="Lista todos os quadrinhos salvos nos favoritos">10 - Listar quadrinho favoritados</button>
+    <button data-action="showBacklog" data-tooltip="Lista todos os quadrinhos salvos no backlo">11 - Listar quadrinho no backlogog</button>  
+    <button data-action="listRead" data-tooltip="Apresenta a lista de HQs lidas">12 - Mostrar lidos</button>
+  </div>
 
   <!-- Aqui será exibido dinamicamente o formulário de cada ação (por exemplo, adicionar livro) -->
   <div id="forms"></div>

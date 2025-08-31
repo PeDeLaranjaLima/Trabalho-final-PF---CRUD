@@ -120,3 +120,18 @@ h1 {
 #buttons button:hover::after {
   opacity: 1;
 }
+
+/* Funções para ajustar os botões de backlog e favoritos para deixar mais agradável */
+.hq-item {
+  justify-content: space-between; /* Nome de um lado dos botões para o outro */
+  align-items: center;           /* Centraliza verticalmente */
+  margin: 0.1px;                 /* Espaçamento entre linhas */
+}
+
+.hq-item span {
+  flex: 0.5; /* Faz o texto ocupar o espaço disponível */
+}
+
+.action-buttons button {
+  margin-left: 1px; /* Dá um pequeno espaço entre os botões */
+}
