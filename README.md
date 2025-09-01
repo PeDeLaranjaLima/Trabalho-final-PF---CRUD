@@ -28,7 +28,7 @@ Nosso sistema foi desenvolvido para oferecer uma experiência de gerenciamento d
 
 ## Como Usar
 
-O HQ Space é fácil de usar. Após o login, você pode:
+O HQ Space é fácil de usar, você pode:
 
 1.  **Inicializar sua lista**: Comece com uma seleção padrão de títulos.
 2.  **Adicionar ao Backlog**: Use a funcionalidade de backlog para planejar suas próximas leituras.
@@ -38,15 +38,16 @@ O HQ Space é fácil de usar. Após o login, você pode:
 
 ## Tecnologia
 
-Descreva aqui as principais tecnologias utilizadas no projeto.
+As principais tecnologias utilizadas no projeto:
 * **Frontend**: HTML, CSS, JavaScript
 * **Backend**: JavaScript
 
-## Link para o vídeo demonstrativo
+## Link para o vídeo demonstrativo:
 
 
 https://youtu.be/PIuXVAfBPdw
 
-## Link para a versão deploy
+## Link para a versão deploy:
 
 https://68b5af0542a18007ad344dd0--earnest-eclair-c975e7.netlify.app/
+
