@@ -44,4 +44,8 @@ Descreva aqui as principais tecnologias utilizadas no projeto.
 
 ## Link para o vídeo demonstrativo
 
+
 https://youtu.be/PIuXVAfBPdw
+
+## Link para a versão deploy
+
