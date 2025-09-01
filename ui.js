@@ -117,16 +117,17 @@ function showHome() {
 // ========================
 function showHQList(list, title, showButtons = false) {
     const listHtml = list.map(hq => `
-        <div class="hq-item">
-            <span>${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})</span>
-            ${showButtons ? `
-                <div class="action-buttons">
-                    <button class="add-to-backlog" data-id="${hq.id}">📚 Backlog</button>
-                    <button class="add-to-favorites" data-id="${hq.id}">⭐ Favoritos</button>
-                </div>
-            ` : ''}
-        </div>
-    `).join('');
+    <div class="hq-item">
+        <label>
+            ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+        ${showButtons ? `
+            <button class="add-to-backlog" data-id="${hq.id}">📚 Backlog</button>
+            <button class="add-to-favorites" data-id="${hq.id}">⭐ Favoritos</button>
+        ` : ''}
+        </ label>
+    </div>
+`).join('');
+
 
     showResult(`
         <h3>${title}</h3>
@@ -325,7 +326,6 @@ function showAuthorChart() {
 
 }
 
-
 // Listar quadrinhos por categoria
 function mostrarFormularioCategoria() {
     const HQs = HQLibrary.loadHQs();
@@ -361,7 +361,6 @@ function mostrarFormularioCategoria() {
     });
 }
 
-// Mostrar a tela de backlog
 // Mostrar a tela de backlog e permitir marcar como lido
 function showBacklogList(backlog, readList) {
     const listHtml = backlog.map(hq => `
@@ -400,13 +399,14 @@ function showBacklogList(backlog, readList) {
     });
 }
 
-
 // Mostra a tela de favoritos
 function showFavoritieslogList(favorites) {
     const listHtml = favorites.map(hq => `
         <div class="hq-item">
+        <label>
             <input type="checkbox" class="remove-favorite" data-id="${hq.id}">
             ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+        </label>
         </div>
     `).join('');
 
@@ -444,7 +444,7 @@ function showListByYearForm() {
             </datalist>
             <button type="submit">Listar</button>
         </form>
-        <div style="font-size: 0.9em; color: #888; margin-top: 4px;">
+        <div style="font-size: 0.9em; color: #fff700ff; margin-top: 4px;">
             Anos disponíveis: ${anos.join(', ')}
         </div>
     `, true);
@@ -469,8 +469,10 @@ function showListByYearForm() {
 function showReadForm() {
     const listHtml = readList.map(hq => `
         <div class="hq-item">
-            <span>${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})</span>
-            <button class="remove-read" data-id="${hq.id}">❌ Remover</button>
+        <label>
+        <input type="checkbox" class="remove-read" data-id="${hq.id}">
+            ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+        </label>
         </div>
     `).join('');
 
@@ -514,7 +516,6 @@ const actions = {
 
     showBacklog: () => showBacklogList(backlog, readList),
     showRead: () => showHQList(readList, 'Já Lidos'),
-    listRead: () => showHQList(readList, 'Quadrinhos Lidos'),
     list: () => showHQList(HQs, 'Catálogo Completo', true),
     showFavorites: () => showFavoritieslogList(favorites),
     listByAuthor: () => showListByAuthorForm(),
