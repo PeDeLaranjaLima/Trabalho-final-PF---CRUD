@@ -109,7 +109,11 @@ function removeLoaderOverlay() {
 function showHome() {
     buttons.style.display = 'grid';
     forms.innerHTML = '';
-    output.innerHTML = '<img src="nave.png" alt="nave" style="width:24px; vertical-align:middle;"> Bem-vindo(a) à Livraria de Quadrinhos!';
+    output.style.backgroundColor = "#972befff"; //mudei a cor para pode ver o gif
+    output.innerHTML = `
+        <img src="LoadPF_Project.gif" alt="nave" style="width:80px; vertical-align:middle; margin-right:1px;">
+        <span>Bem-vindo(a) ao seu companheiro de leituras!</span>
+    `;
 }
 
 // ========================
@@ -117,16 +121,18 @@ function showHome() {
 // ========================
 function showHQList(list, title, showButtons = false) {
     const listHtml = list.map(hq => `
-        <div class="hq-item">
-            <span>${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})</span>
-            ${showButtons ? `
-                <div class="action-buttons">
-                    <button class="add-to-backlog" data-id="${hq.id}">📚 Backlog</button>
-                    <button class="add-to-favorites" data-id="${hq.id}">⭐ Favoritos</button>
-                </div>
-            ` : ''}
-        </div>
-    `).join('');
+    <div class="hq-item">
+    <label>
+        ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+        ${showButtons ? `
+            <img class="add-to-backlog" data-id="${hq.id}" src="IconsBackLog.webp" alt="Backlog" width="40" height="40">
+            <img class="add-to-favorites" data-id="${hq.id}" src="IconsFavoritar.webp" alt="Favoritos" width="40" height="40">
+        ` : ''}
+    </label>
+</div>
+
+`).join('');
+
 
     showResult(`
         <h3>${title}</h3>
@@ -311,20 +317,12 @@ function showAuthorChart() {
                 maintainAspectRatio: true,
                 plugins: {
                     legend: { display: true, position: 'right' },
-                    /*title: {
-                        display: true,
-                        text: 'Quantidade de Quadrinhos por Autor',
-                        font: { size: 18 },
-                        color: '#fb0ceb',
-                        padding: { top: 10, bottom: 20 }
-                    }*/
                 }
             }
         });
     }, 50); // 50ms é suficiente
 
 }
-
 
 // Listar quadrinhos por categoria
 function mostrarFormularioCategoria() {
@@ -361,16 +359,17 @@ function mostrarFormularioCategoria() {
     });
 }
 
-// Mostrar a tela de backlog
 // Mostrar a tela de backlog e permitir marcar como lido
-function showBacklogList(backlog, readList) {
-    const listHtml = backlog.map(hq => `
+function showBacklogList(backlogList) {
+    const listHtml = backlogList.map(hq => `
         <div class="hq-item">
-            <label>
-                <input type="checkbox" class="mark-read" data-id="${hq.id}">
-                ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
-            </label>
+        <label>
+            <input type="checkbox" class="mark-read" data-id="${hq.id}">
+            <img class="checkbox-img" src="IconsRemover.webp" width="40" height="40" alt="Marcar como lido">
+            ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+        </label>
         </div>
+
     `).join('');
 
     showResult(`
@@ -378,35 +377,35 @@ function showBacklogList(backlog, readList) {
         ${listHtml || '<p>Backlog vazio.</p>'}
     `);
 
-    // Adiciona evento para marcar como lido
     document.querySelectorAll('.mark-read').forEach(checkbox => {
         checkbox.addEventListener('change', (e) => {
             const id = Number(e.target.dataset.id);
-            // Move o quadrinho para lidos
             const result = HQLibrary.moveToRead(backlog, readList, id);
+
+            // Atualiza as variáveis globais
             backlog = result.backlog;
             readList = result.readList;
 
-            // Salva as alterações
             HQLibrary.saveBacklog(backlog);
             HQLibrary.saveRead(readList);
 
-            // Mostra mensagem de confirmação
             showTemporaryAlert(`"${HQs.find(h => h.id === id)?.title}" marcado como lido!`);
 
-            // Recarrega a lista para refletir a mudança
-            showBacklogList(backlog, readList);
+            // Re-renderiza com os dados atualizados
+            showBacklogList(backlog);
         });
     });
 }
-
 
 // Mostra a tela de favoritos
 function showFavoritieslogList(favorites) {
     const listHtml = favorites.map(hq => `
         <div class="hq-item">
-            <input type="checkbox" class="remove-favorite" data-id="${hq.id}">
-            ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+            <label>
+                <input type="checkbox" class="remove-favorite" data-id="${hq.id}">
+                <img class="checkbox-img" src="IconsRemover.webp" width="40" height="40" alt="Remover dos favoritos">
+                ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+            </label>
         </div>
     `).join('');
 
@@ -444,7 +443,7 @@ function showListByYearForm() {
             </datalist>
             <button type="submit">Listar</button>
         </form>
-        <div style="font-size: 0.9em; color: #888; margin-top: 4px;">
+        <div style="font-size: 0.9em; color: #fff700ff; margin-top: 4px;">
             Anos disponíveis: ${anos.join(', ')}
         </div>
     `, true);
@@ -469,8 +468,11 @@ function showListByYearForm() {
 function showReadForm() {
     const listHtml = readList.map(hq => `
         <div class="hq-item">
-            <span>${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})</span>
-            <button class="remove-read" data-id="${hq.id}">❌ Remover</button>
+            <label>
+                <input type="checkbox" class="add-to-favorites" data-id="${hq.id}">
+                <img class="checkbox-img" src="IconsFavoritar.webp" width="40" height="40" alt="Remover dos lidos">
+                ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+            </label>
         </div>
     `).join('');
 
@@ -490,7 +492,6 @@ function showReadForm() {
     });
 }
 
-
 let readList = HQLibrary.loadRead();
 
 // ===== Actions =====
@@ -501,9 +502,9 @@ const actions = {
         HQLibrary.saveHQs(HQs);
         showTemporaryAlert('Livraria iniciada com lista de Quadrinhos padrão!');
     },
+    add: () => showAddForm(),
     list: () => showResult(HQLibrary.listHQs(HQs)),
     listRead: () => showReadForm(),
-    add: () => showAddForm(),
     update: () => showUpdateForm(),
     delete: () => showDeleteForm(),
     clear: () => { 
@@ -511,10 +512,8 @@ const actions = {
         HQs=[]; 
         showTemporaryAlert('Livraria esvaziada.');
     },
-
     showBacklog: () => showBacklogList(backlog, readList),
     showRead: () => showHQList(readList, 'Já Lidos'),
-    listRead: () => showHQList(readList, 'Quadrinhos Lidos'),
     list: () => showHQList(HQs, 'Catálogo Completo', true),
     showFavorites: () => showFavoritieslogList(favorites),
     listByAuthor: () => showListByAuthorForm(),

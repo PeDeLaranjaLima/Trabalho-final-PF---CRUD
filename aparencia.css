@@ -10,7 +10,7 @@ body {
     background-repeat: no-repeat;       /* evita repetição */
     background-position: center;        /* centraliza a imagem */
     background-size: cover;             /* faz a imagem cobrir toda a tela */
-    color: rgb(208, 50, 244);                       /* cor do texto para contraste */
+    color: rgb(255, 255, 255);                       /* cor do texto para contraste */
     font-size: 18px;
     font-family: 'Times New Roman', Times, serif;
 }
@@ -52,17 +52,17 @@ h1 {
 
 /* Estilo padrão do botão de voltar */
 .back-button {
-    background-color: #f40a0a;
-    color: rgb(253, 215, 0);
+    position: fixed;
+    top: 10px;   /* bem perto do topo */
+    left: 20px;  /* encostado na lateral esquerda */
+    background-color: #ff0000;
+    color: rgb(250, 217, 0);
     border: none;
-    border-radius: 15px;
+    border-radius: 6px;
     padding: 8px 16px;
-    font-size: 14px;
     cursor: pointer;
-    margin-bottom: 12px;
-    display: inline-block;
-    transition: background-color 0.2s ease;
 }
+
 
 /* Efeito ao passar o mouse */
 .back-button:hover {
@@ -134,4 +134,32 @@ h1 {
 
 .action-buttons button {
   margin-left: 1px; /* Dá um pequeno espaço entre os botões */
+}
+
+/* Ajusta os itens da tag label para que todos os botões e checkbox fiquem ao lado dos itens da lista */
+.hq-item label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px; /* espaço entre checkbox e texto */
+}
+
+/* Esconde o checkbox real */
+.hq-item input[type="checkbox"] {
+    display: none;
+}
+
+/* Cria a aparência do checkbox usando o span */
+.custom-checkbox {
+   /*display: inline-block;*/
+    width: 50px;   /* largura do checkbox */
+    height: 50px;  /* altura do checkbox */
+    background-image: url('IconsRemover.webp'); /* imagem para não marcado */
+    background-size: 50px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+/* Quando o checkbox estiver marcado */
+.hq-item input[type="checkbox"]:checked + .custom-checkbox {
+    background-image: url('IconsRemover.webp'); /* imagem para marcado */
 }
