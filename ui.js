@@ -8,44 +8,31 @@ import { HQLibrary } from './lib.js';
 let HQs = HQLibrary.loadHQs();
 let backlog = HQLibrary.loadBacklog();
 let favorites = HQLibrary.loadFavorites();
+let readList = HQLibrary.loadRead();
+
+// Seleciona elementos HTML que serão manipulados pelo JavaScript
+const output = document.getElementById('output');
+const forms = document.getElementById('forms');
+const buttons = document.getElementById('buttons');
+const backButton = document.getElementById('backButton');
 
 // Garante que o estado atual seja salvo no localStorage
 HQLibrary.saveHQs(HQs);
 
-// Seleciona elementos HTML que serão manipulados pelo JavaScript
-const output = document.getElementById('output');    // Área de exibição de resultados
-const forms = document.getElementById('forms');      // Área onde formulários aparecem dinamicamente
-const buttons = document.getElementById('buttons');  // Div que contém os botões de ações
-
 // ===== Funções de exibição e controle =====
 
-/**
- * Exibe o botão de voltar e gerencia a visibilidade dos contêineres.
- * @param {string} content O conteúdo a ser exibido (HTML ou texto).
- * @param {boolean} isForm Se o conteúdo é um formulário (para ser inserido em `forms`).
- */
 function showResult(content, isForm = false) {
-    buttons.style.display = 'none'; // Esconde os botões do menu
+    buttons.style.display = 'none';
     output.innerHTML = '';
     forms.innerHTML = '';
 
     const container = isForm ? forms : output;
     container.innerHTML = content;
 
-    const backButton = document.createElement('button');
-    backButton.textContent = 'voltar';
-    backButton.id = 'backButton';
-    backButton.className = 'back-button'; // Opcional: para estilização
-
-    // Adiciona o botão de voltar ao contêiner de formulários ou de saída
-    const targetElement = isForm ? forms : output;
-    targetElement.insertBefore(backButton, targetElement.firstChild);
-    
-    // Adiciona o listener para o botão de voltar
-    backButton.addEventListener('click', showHome);
+    backButton.style.display = 'block';
+    backButton.onclick = showHome;
 }
 
-// Função para mostrar alerta temporário em formato de pop up
 function showTemporaryAlert(message, duration = 3000) {
     const alertBox = document.createElement("div");
     alertBox.textContent = message;
@@ -61,17 +48,16 @@ function showTemporaryAlert(message, duration = 3000) {
     alertBox.style.fontSize = "14px";
     document.body.appendChild(alertBox);
 
-    // Remove após 3000 segundos
     setTimeout(() => {
         alertBox.remove();
     }, duration);
 }
 
 function loadPage(content, isForm = false, duration = 2000) {
-    createLoaderOverlay(); // mostra tela inteira de loading
+    createLoaderOverlay();
     setTimeout(() => {
-        removeLoaderOverlay(); // remove loader
-        showResult(content, isForm); // mostra conteúdo real
+        removeLoaderOverlay();
+        showResult(content, isForm);
     }, duration);
 }
 
@@ -103,43 +89,35 @@ function removeLoaderOverlay() {
     if (overlay) overlay.remove();
 }
 
-/*
- * Retorna à tela inicial, mostrando os botões e limpando o resto.
- */
 function showHome() {
     buttons.style.display = 'grid';
     forms.innerHTML = '';
-    output.style.backgroundColor = "#972befff"; //mudei a cor para pode ver o gif
+    output.style.backgroundColor = "#972befff";
     output.innerHTML = `
         <img src="LoadPF_Project.gif" alt="nave" style="width:80px; vertical-align:middle; margin-right:1px;">
         <span>Bem-vindo(a) ao seu companheiro de leituras!</span>
     `;
+    backButton.style.display = 'none';
 }
 
-// ========================
-// Função de listagem aprimorada
-// ========================
 function showHQList(list, title, showButtons = false) {
     const listHtml = list.map(hq => `
-    <div class="hq-item">
-    <label>
-        ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
-        ${showButtons ? `
-            <img class="add-to-backlog" data-id="${hq.id}" src="IconsBackLog.webp" alt="Backlog" width="40" height="40">
-            <img class="add-to-favorites" data-id="${hq.id}" src="IconsFavoritar.webp" alt="Favoritos" width="40" height="40">
-        ` : ''}
-    </label>
-</div>
-
-`).join('');
-
+        <div class="hq-item">
+            <label>
+                ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+                ${showButtons ? `
+                    <img class="add-to-backlog" data-id="${hq.id}" src="IconsBackLog.webp" alt="Backlog" width="40" height="40">
+                    <img class="add-to-favorites" data-id="${hq.id}" src="IconsFavoritar.webp" alt="Favoritos" width="40" height="40">
+                ` : ''}
+            </label>
+        </div>
+    `).join('');
 
     showResult(`
         <h3>${title}</h3>
         ${listHtml || '<p>Nenhum quadrinho encontrado.</p>'}
     `);
 
-    // Adiciona os event listeners aos botões
     if (showButtons) {
         document.querySelectorAll('.add-to-backlog').forEach(button => {
             button.addEventListener('click', (e) => {
@@ -148,8 +126,7 @@ function showHQList(list, title, showButtons = false) {
                 if (hq) {
                     backlog = HQLibrary.addToBacklog(backlog, hq);
                     HQLibrary.saveBacklog(backlog);
-                    showTemporaryAlert(`"${hq.title}" adicionado ao backlog!`); // Envia a mensagem para a função de alerta
-                    // o tempo está definido na própria função
+                    showTemporaryAlert(`"${hq.title}" adicionado ao backlog!`);
                 }
             });
         });
@@ -161,20 +138,13 @@ function showHQList(list, title, showButtons = false) {
                 if (hq) {
                     favorites = HQLibrary.addToFavorites(favorites, hq);
                     HQLibrary.saveFavorites(favorites);
-                    //showResult();
-                    showTemporaryAlert(`"${hq.title}" adicionado aos favoritos!`) // Envia a mensagem para a função de alerta
-                    // o tempo está definido na própria função
+                    showTemporaryAlert(`"${hq.title}" adicionado aos favoritos!`);
                 }
             });
         });
     }
 }
 
-// ===== Forms =====
-// Cada função abaixo cria dinamicamente um formulário e adiciona
-// eventos de "submit" para executar a ação correspondente na livraria.
-
-// --- Formulário de adicionar Quadrinho ---
 function showAddForm() {
     showResult(`
         <h3>Adicionar Quadrinho</h3>
@@ -188,10 +158,9 @@ function showAddForm() {
             <button type="submit">Adicionar</button>
         </form>
     `, true);
-    
-    // Quando o formulário é enviado
+
     document.getElementById('addForm').addEventListener('submit', e => {
-        e.preventDefault(); // Evita recarregar a página
+        e.preventDefault();
         const newHQs = {
             id: Number(document.getElementById('addId').value),
             title: document.getElementById('addTitle').value,
@@ -200,13 +169,12 @@ function showAddForm() {
             publisher: document.getElementById('addPublisher').value,
             category: document.getElementById('addCategory').value
         };
-        HQs = HQLibrary.addHQ(HQs, newHQs); // Chama a função da lib
-        HQLibrary.saveHQs(HQs); // Salva no localStorage
+        HQs = HQLibrary.addHQ(HQs, newHQs);
+        HQLibrary.saveHQs(HQs);
         showResult('Quadrinho adicionado!');
     });
 }
 
-// --- Formulário de atualizar Quadrinho ---
 function showUpdateForm() {
     showResult(`
         <h3>Atualizar Quadrinho</h3>
@@ -220,7 +188,7 @@ function showUpdateForm() {
             <button type="submit">Atualizar</button>
         </form>
     `, true);
-    
+
     document.getElementById('updateForm').addEventListener('submit', e => {
         e.preventDefault();
         const id = Number(document.getElementById('updateId').value);
@@ -230,18 +198,17 @@ function showUpdateForm() {
         const year = document.getElementById('updateYear').value;
         const publisher = document.getElementById('updatePublisher').value;
         const category = document.getElementById('updateCategory').value;
-        if(title) updates.title = title;
-        if(author) updates.author = author;
-        if(year) updates.year = Number(year);
-        if(publisher) updates.publisher = publisher;
-        if(category) updates.category = category;
-        HQs = HQLibrary.updateHQ(HQs, id, updates); // Atualiza dados
+        if (title) updates.title = title;
+        if (author) updates.author = author;
+        if (year) updates.year = Number(year);
+        if (publisher) updates.publisher = publisher;
+        if (category) updates.category = category;
+        HQs = HQLibrary.updateHQ(HQs, id, updates);
         HQLibrary.saveHQs(HQs);
         showResult('Quadrinho atualizado!');
     });
 }
 
-// --- Formulário de remover Quadrinho ---
 function showDeleteForm() {
     showResult(`
         <h3>Remover Quadrinho</h3>
@@ -250,17 +217,16 @@ function showDeleteForm() {
             <button type="submit">Remover</button>
         </form>
     `, true);
-    
+
     document.getElementById('deleteForm').addEventListener('submit', e => {
         e.preventDefault();
         const id = Number(document.getElementById('deleteId').value);
-        HQs = HQLibrary.deleteHQ(HQs, id); // Remove
+        HQs = HQLibrary.deleteHQ(HQs, id);
         HQLibrary.saveHQs(HQs);
         showResult('Quadrinho removido!');
     });
 }
 
-// --- Formulário para listar Quadrinhos por autor ---
 function showListByAuthorForm() {
     showResult(`
         <h3>Listar Quadrinhos por autor</h3>
@@ -269,7 +235,7 @@ function showListByAuthorForm() {
             <button type="submit">Listar</button>
         </form>
     `, true);
-    
+
     document.getElementById('authorForm').addEventListener('submit', e => {
         e.preventDefault();
         const author = document.getElementById('authorName').value;
@@ -279,34 +245,17 @@ function showListByAuthorForm() {
     });
 }
 
-// ===== Gráfico de Quadrinhos por autor =====
 function showAuthorChart() {
     const counts = HQLibrary.countHQsByAuthor(HQs);
-    const sorted = Object.entries(counts).sort((a,b) => a[1]-b[1]);
+    const sorted = Object.entries(counts).sort((a, b) => a[1] - b[1]);
     const labels = sorted.map(([autor]) => autor);
     const data = sorted.map(([_, qtd]) => qtd);
-   
-     // Array de cores limitado aos tons que usamos no nosso site
-    const palette = [
-        "#FFB6C1","#FF69B4","#FF1493","#FFC0CB","#DB7093",
-        "#DA70D6","#BA55D3","#9932CC","#8A2BE2","#9400D3",
-        "#FFD700","#FFC300","#FFB300","#FFAA00","#FF9900",
-        "#32CD32","#228B22","#00FF7F","#00FA9A","#7CFC00",
-        "#FF69B4","#FF6EB4","#FF6ABF","#FF5AC1","#FF4FBF",
-        "#DDA0DD","#EE82EE","#DA70D6","#C71585","#BA55D3",
-        "#FFFF00","#FFFACD","#FAFAD2","#FFE135","#FFD700",
-        "#00FF00","#32CD32","#3CB371","#2E8B57","#00FA9A",
-        "#FF1493","#FF00FF","#FF77FF","#FF33CC","#FF66CC",
-        "#8A2BE2","#9370DB","#7B68EE","#6A5ACD","#663399"
-    ];
 
-    // Aplica as cores do array repetindo se necessário
+    const palette = ["#FFB6C1", "#FF69B4", "#FF1493", "#FFC0CB", "#DB7093", "#DA70D6", "#BA55D3", "#9932CC", "#8A2BE2", "#9400D3", "#FFD700", "#FFC300", "#FFB300", "#FFAA00", "#FF9900", "#32CD32", "#228B22", "#00FF7F", "#00FA9A", "#7CFC00", "#FF69B4", "#FF6EB4", "#FF6ABF", "#FF5AC1", "#FF4FBF", "#DDA0DD", "#EE82EE", "#DA70D6", "#C71585", "#BA55D3", "#FFFF00", "#FFFACD", "#FAFAD2", "#FFE135", "#FFD700", "#00FF00", "#32CD32", "#3CB371", "#2E8B57", "#00FA9A", "#FF1493", "#FF00FF", "#FF77FF", "#FF33CC", "#FF66CC", "#8A2BE2", "#9370DB", "#7B68EE", "#6A5ACD", "#663399"];
     const colors = labels.map((_, i) => palette[i % palette.length]);
 
-    // Apenas um canvas
-   showResult(`<canvas id="authorChart" width="900" height="900" style="display:block; margin:0 auto;"></canvas>`);
+    showResult(`<canvas id="authorChart" width="900" height="900" style="display:block; margin:0 auto;"></canvas>`);
 
-    // Use setTimeout para garantir que o DOM tenha atualizado
     setTimeout(() => {
         const ctx = document.getElementById('authorChart').getContext('2d');
         new Chart(ctx, {
@@ -320,11 +269,9 @@ function showAuthorChart() {
                 }
             }
         });
-    }, 50); // 50ms é suficiente
-
+    }, 50);
 }
 
-// Listar quadrinhos por categoria
 function mostrarFormularioCategoria() {
     const HQs = HQLibrary.loadHQs();
     const categorias = [...new Set(HQs.map(hq => hq.category))].filter(Boolean);
@@ -341,7 +288,7 @@ function mostrarFormularioCategoria() {
         </form>
         <div style="font-size: 0.9em; color: #888; margin-top: 4px;">Categorias disponíveis: ${categorias.join(', ')}</div>
     `, true);
-    
+
     document.getElementById('formCategoria').addEventListener('submit', function(e) {
         e.preventDefault();
         const categoria = document.getElementById('categoriaInput').value.trim();
@@ -359,17 +306,15 @@ function mostrarFormularioCategoria() {
     });
 }
 
-// Mostrar a tela de backlog e permitir marcar como lido
-function showBacklogList(backlogList) {
+function showBacklogList() {
+    const backlogList = HQLibrary.loadBacklog();
     const listHtml = backlogList.map(hq => `
         <div class="hq-item">
-        <label>
-            <input type="checkbox" class="mark-read" data-id="${hq.id}">
-            <img class="checkbox-img" src="IconsRemover.webp" width="40" height="40" alt="Marcar como lido">
-            ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
-        </label>
+            <label>
+                ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+                <img class="mark-read" data-id="${hq.id}" src="IconsRemover.webp" width="40" height="40" alt="Marcar como lido">
+            </label>
         </div>
-
     `).join('');
 
     showResult(`
@@ -377,34 +322,27 @@ function showBacklogList(backlogList) {
         ${listHtml || '<p>Backlog vazio.</p>'}
     `);
 
-    document.querySelectorAll('.mark-read').forEach(checkbox => {
-        checkbox.addEventListener('change', (e) => {
+    document.querySelectorAll('.mark-read').forEach(button => {
+        button.addEventListener('click', (e) => {
             const id = Number(e.target.dataset.id);
             const result = HQLibrary.moveToRead(backlog, readList, id);
-
-            // Atualiza as variáveis globais
             backlog = result.backlog;
             readList = result.readList;
-
             HQLibrary.saveBacklog(backlog);
             HQLibrary.saveRead(readList);
-
             showTemporaryAlert(`"${HQs.find(h => h.id === id)?.title}" marcado como lido!`);
-
-            // Re-renderiza com os dados atualizados
-            showBacklogList(backlog);
+            showBacklogList();
         });
     });
 }
 
-// Mostra a tela de favoritos
-function showFavoritieslogList(favorites) {
-    const listHtml = favorites.map(hq => `
+function showFavoritieslogList() {
+    const favoritesList = HQLibrary.loadFavorites();
+    const listHtml = favoritesList.map(hq => `
         <div class="hq-item">
             <label>
-                <input type="checkbox" class="remove-favorite" data-id="${hq.id}">
-                <img class="checkbox-img" src="IconsRemover.webp" width="40" height="40" alt="Remover dos favoritos">
                 ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+                <img class="remove-favorite" data-id="${hq.id}" src="IconsRemover.webp" width="40" height="40" alt="Remover dos favoritos">
             </label>
         </div>
     `).join('');
@@ -414,22 +352,19 @@ function showFavoritieslogList(favorites) {
         ${listHtml || '<p>Nenhum quadrinho favoritado.</p>'}
     `);
 
-    // Marck boox de remover dos favoritos
     document.querySelectorAll('.remove-favorite').forEach(button => {
         button.addEventListener('click', (e) => {
             const id = Number(e.target.dataset.id);
-            favorites = favorites.filter(hq => hq.id !== id);
+            favorites = HQLibrary.removeFromFavorites(favorites, id);
             HQLibrary.saveFavorites(favorites);
-            showFavoritieslogList(favorites); // recarrega a lista, atualizando a página
+            showFavoritieslogList();
             showTemporaryAlert('Quadrinho removido dos favoritos!');
         });
     });
 }
 
-// --- Formulário para listar Quadrinhos por ano ---
 function showListByYearForm() {
     const HQs = HQLibrary.loadHQs();
-    // Cria lista de anos disponíveis
     const anos = [...new Set(HQs.map(hq => hq.year))].sort((a, b) => a - b);
     const options = anos.map(ano => `<option value="${ano}"></option>`).join('');
 
@@ -464,14 +399,13 @@ function showListByYearForm() {
     });
 }
 
-// Formulário com a opção de remover da lista de lidos e voltar para o backlog - acho que é algo legal de ter
 function showReadForm() {
+    const readList = HQLibrary.loadRead();
     const listHtml = readList.map(hq => `
         <div class="hq-item">
             <label>
-                <input type="checkbox" class="add-to-favorites" data-id="${hq.id}">
-                <img class="checkbox-img" src="IconsFavoritar.webp" width="40" height="40" alt="Remover dos lidos">
                 ${hq.id} - "${hq.title}" (${hq.author}, ${hq.year})
+                <img class="add-to-favorites" data-id="${hq.id}" src="IconsFavoritar.webp" alt="Favoritos" width="40" height="40">
             </label>
         </div>
     `).join('');
@@ -481,21 +415,21 @@ function showReadForm() {
         ${listHtml || '<p>Nenhum quadrinho lido ainda.</p>'}
     `);
 
-    // Botão de remover da lista de lidos
-    document.querySelectorAll('.remove-read').forEach(button => {
+    // Adiciona o listener para o botão de favoritar
+    document.querySelectorAll('.add-to-favorites').forEach(button => {
         button.addEventListener('click', (e) => {
             const id = Number(e.target.dataset.id);
-            readList = readList.filter(hq => hq.id !== id);
-            HQLibrary.saveRead(readList);
-            showReadForm(); // Atualiza tela
+            const hq = readList.find(h => h.id === id); // Procura na lista de lidos
+            if (hq) {
+                favorites = HQLibrary.addToFavorites(favorites, hq);
+                HQLibrary.saveFavorites(favorites);
+                showTemporaryAlert(`"${hq.title}" adicionado aos favoritos!`);
+            }
         });
     });
 }
 
-let readList = HQLibrary.loadRead();
-
 // ===== Actions =====
-// Dicionário que associa cada ação a uma função
 const actions = {
     init: () => {
         HQs = HQLibrary.resetHQs();
@@ -503,34 +437,32 @@ const actions = {
         showTemporaryAlert('Livraria iniciada com lista de Quadrinhos padrão!');
     },
     add: () => showAddForm(),
-    list: () => showResult(HQLibrary.listHQs(HQs)),
+    list: () => showHQList(HQLibrary.loadHQs(), 'Catálogo Completo', true),
     listRead: () => showReadForm(),
     update: () => showUpdateForm(),
     delete: () => showDeleteForm(),
-    clear: () => { 
-        HQLibrary.clearHQs(); 
-        HQs=[]; 
+    clear: () => {
+        HQLibrary.clearHQs();
+        HQs = [];
+        backlog = [];
+        favorites = [];
+        readList = [];
         showTemporaryAlert('Livraria esvaziada.');
     },
-    showBacklog: () => showBacklogList(backlog, readList),
-    showRead: () => showHQList(readList, 'Já Lidos'),
-    list: () => showHQList(HQs, 'Catálogo Completo', true),
-    showFavorites: () => showFavoritieslogList(favorites),
+    showBacklog: () => showBacklogList(),
+    showFavorites: () => showFavoritieslogList(),
     listByAuthor: () => showListByAuthorForm(),
     countByAuthor: () => showAuthorChart(),
-    listByYear : () => showListByYearForm(),
+    listByYear: () => showListByYearForm(),
     listByCategory: () => mostrarFormularioCategoria(),
     exit: () => showResult()
 };
-
 // ===== Event listener =====
-// Captura cliques nos botões do menu e chama a ação correspondente
 buttons.addEventListener('click', e => {
-    if(e.target.tagName === 'BUTTON') {
-        const action = e.target.dataset.action; // Lê o "data-action" do botão
-        if(action && actions[action]) actions[action](); // Executa a função correspondente
+    if (e.target.tagName === 'BUTTON') {
+        const action = e.target.dataset.action;
+        if (action && actions[action]) actions[action]();
     }
 });
 
-// Inicializa a tela quando a página carrega
 document.addEventListener('DOMContentLoaded', showHome);
