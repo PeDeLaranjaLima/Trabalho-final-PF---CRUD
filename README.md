@@ -49,3 +49,4 @@ https://youtu.be/PIuXVAfBPdw
 
 ## Link para a versão deploy
 
+https://68b5af0542a18007ad344dd0--earnest-eclair-c975e7.netlify.app/
